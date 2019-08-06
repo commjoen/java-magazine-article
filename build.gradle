@@ -1,10 +1,5 @@
 description = "Code examples for Java Magazine"
 
-allprojects {
-    group = 'org.paseto4j'
-    version = System.properties['buildNumber'] ?: '0.0.14-SNAPSHOT'
-}
-
 repositories {
     mavenCentral()
 }
