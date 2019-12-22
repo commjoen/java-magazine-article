@@ -13,14 +13,14 @@ jobs:
         run: docker build . --file Dockerfile --tag java-magazine:latest
       - name: Create PDF / Word
         run: docker run -v ${PWD}/article:/documents java-magazine 'asciidoctor -r asciidoctor-pdf -b pdf introduction_article.adoc; asciidoctor --backend docbook --out-file - introduction_article.adoc | pandoc --from docbook --to docx --output introduction_article.docx'
-      - name: List Files
+      - name: List files
         run: ls -alrt ${PWD}/article
-      - name: Upload
+      - name: Upload PDF
         uses: actions/upload-artifact@v1
         with:
           name: PDF
           path: article/introduction_article.pdf
-      - name: Upload
+      - name: Upload Word
         uses: actions/upload-artifact@v1
         with:
           name: Word
