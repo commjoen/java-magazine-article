@@ -12,4 +12,4 @@ jobs:
       - name: Build the Docker image
         run: docker build . --file Dockerfile --tag java-magazine:latest
       - name: Create PDF / Word
-        run: docker exec -t java-magazine 'asciidoctor --backend docbook --out-file - introduction_article.adoc | pandoc --from docbook --to docx --output out.docx'
+        run: docker exec -t java-magazine:latest 'asciidoctor --backend docbook --out-file - introduction_article.adoc | pandoc --from docbook --to docx --output out.docx'
