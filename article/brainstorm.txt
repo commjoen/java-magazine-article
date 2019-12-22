@@ -1,0 +1,16 @@
+TODO:
+Code samples met LibSodium of BC
+Plaintext, Ciphertext, block operations vS streaming & padding (Jeroen)
+Symmetrische encryptie (Nanne)
+AES
+SALSA-20 (CHACHA uitleggen)
+Asymmetrische encryptie (Nanne)
+RSA (2048, OAEP, 1 block for a key only!)!!  Hinten op gebruik elliptic ipv RSA
+Elliptic curve
+Hashing (Jeroen)
+Signing (Jeroen)
+RSA-PSS
+ECDSA
+HMAC (wie klaar is :P )
+Poly
+HMAC
