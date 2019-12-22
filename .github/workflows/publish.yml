@@ -12,7 +12,7 @@ jobs:
       - name: Build the Docker image
         run: docker build . --file Dockerfile --tag java-magazine:latest
       - name: Create PDF / Word
-        run: docker run -v ${PWD}/article:/documents java-magazine 'asciidoctor --backend docbook --out-file - introduction_article.adoc | pandoc --from docbook --to docx --output out.docx'
+        run: docker run -v ${PWD}/article:/documents java-magazine 'asciidoctor -r asciidoctor-pdf -b pdf introduction_article.adoc; asciidoctor --backend docbook --out-file - introduction_article.adoc | pandoc --from docbook --to docx --output introduction_article.docx'
       - name: List Files
         run: ls -alrt ${PWD}/article
       - name: Upload
@@ -20,3 +20,8 @@ jobs:
         with:
           name: PDF
           path: ${PWD}/article/introduction_article.pdf
+      - name: Upload
+        uses: actions/upload-artifact@v1
+        with:
+          name: Word
+          path: ${PWD}/article/introduction_article.docx
