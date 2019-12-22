@@ -19,9 +19,9 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: PDF
-          path: ${PWD}/article/introduction_article.pdf
+          path: article/introduction_article.pdf
       - name: Upload
         uses: actions/upload-artifact@v1
         with:
           name: Word
-          path: ${PWD}/article/introduction_article.docx
+          path: article/introduction_article.docx
