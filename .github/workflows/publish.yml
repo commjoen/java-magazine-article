@@ -14,9 +14,9 @@ jobs:
       - name: Create PDF / Word
         run: docker run -v ${PWD}/article:/documents java-magazine 'asciidoctor --backend docbook --out-file - introduction_article.adoc | pandoc --from docbook --to docx --output out.docx'
       - name: List Files
-        run: ls -alrt /documents
+        run: ls -alrt ${PWD}/article
       - name: Upload
         uses: actions/upload-artifact@v1
         with:
           name: PDF
-          path: /documents/introduction_article.pdf
+          path: ${PWD}/article/introduction_article.pdf
