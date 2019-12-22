@@ -15,3 +15,7 @@ jobs:
         run: docker images
       - name: Create PDF / Word
         run: docker run -v ${PWD}:/documents java-magazine 'asciidoctor --backend docbook --out-file - introduction_article.adoc | pandoc --from docbook --to docx --output out.docx'
+      - uses: actions/upload-artifact@v1
+        with:
+          name: PDF
+          path: article/introduction_article.pdf
