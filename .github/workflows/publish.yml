@@ -11,5 +11,7 @@ jobs:
         uses: actions/checkout@v1
       - name: Build the Docker image
         run: docker build . --file Dockerfile --tag java-magazine:latest
+      - name: Check logs
+        run: docker images
       - name: Create PDF / Word
-        run: docker exec -t java-magazine:latest 'asciidoctor --backend docbook --out-file - introduction_article.adoc | pandoc --from docbook --to docx --output out.docx'
+        run: docker run -v ${PWD}:/documents java-magazine 'asciidoctor --backend docbook --out-file - introduction_article.adoc | pandoc --from docbook --to docx --output out.docx'
