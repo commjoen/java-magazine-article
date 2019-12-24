@@ -111,8 +111,11 @@ ondersteunen de meeste libraries deze ciphers out-of-the-box.
 ## Verschil tussen een initialization vector(IV) en nonce
 
 Er is een belangrijk verschil op te merken tussen een IV en een nonce, een IV moet random zijn en een nonce kan ook
-gebaseerd zijn op een counter. In footnote:[CWE-329: http://cwe.mitre.org/data/definitions/329.html] kun je de
-aanbeveling lezen waarom de IV random moet zijn, ook een voorspelbare IV levert
+gebaseerd zijn op een counter. Een nonce in bijvoorbeeld AES GCM kan gewoon een counter zijn, het is daarbij wel belangrijk
+om dit nummer **exact 1 keer** te gebruiken anders is er een aanval mogelijk op de gebruikte sleutel. Het voert te ver om
+in dit artikel hieraan aandacht te besteden, zie footnote:[https://tools.ietf.org/id/draft-irtf-cfrg-gcmsiv-08.html] voor
+meer informatie. In footnote:[CWE-329: http://cwe.mitre.org/data/definitions/329.html] kun je de
+aanbeveling lezen waarom de IV random moet zijn, ook een voorspelbare IV (toegestaan bij een nonce) levert
 problemen op, stel we gebruiken een counter als IV dan is het voor een attacker mogelijk onder de juiste condities om
 het volgende uit te voeren, in het geval van AES CBC is een bericht als volgt versleuteld:
 
@@ -135,9 +138,6 @@ C~eve~ = E(k, IV~alice~ ⊕ "yes")
 Nu kan Eve dus kijken of C~eve~ gelijk is C~alice~ als dit zo is, weet Eve dat Alice de waarde "yes" heeft gebruikt.
 
 Dit voorbeeld is te vinden in onze Github repository footnote:[https://github.com/nbaars/java-magazine-article/].
-Een nonce in bijvoorbeeld AES GCM kan gewoon een counter zijn, het is daarbij wel belangrijk om dit nummer **exact 1 keer** te
-gebruiken anders is er een aanval mogelijk op de gebruikte sleutel. Het voert te ver om in dit artikel hieraan
-aandacht te besteden, zie footnote:[https://tools.ietf.org/id/draft-irtf-cfrg-gcmsiv-08.html] voor meer informatie.
 
 
 ## Uitdaging maar hoe krijg je de sleutel over de lijn?
