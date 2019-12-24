@@ -7,8 +7,8 @@ uitgave van het Java-magazine met do’s en dont’s.
 
 ## Even terug naar wat basis begrippen
 
-We komen cryptografie overal tegen in het dagelijks leven: wanneer we een website openen met HTTPS
-(waarbij de S voor Secure staat), wanneer we een moderne smartphone aanzetten (met versleutelde opslag) tot en met
+We komen cryptografie overal tegen in het dagelijks leven: wanneer we een website openen met HTTPS, wanneer we een moderne
+smartphone aanzetten met versleutelde opslag tot en met
 wanneer we berichtjes sturen naar onze vrienden/familie met Whatsapp/Signal/Telegram. Maar hoe werkt het nu? En
 belangrijker: hoe passen we het toe in Java? Voordat we naar de code rennen, laten we eerst even wat basisbegrippen
 uitleggen die in dit artikel vaak hergebruikt worden. Er zijn 3 security attributen die je graag wil bereiken met cryptografie:
