@@ -109,41 +109,22 @@ Hoe de sleutel uitwisseling in de praktijk op een veilige manier moet gebeuren i
 
 ### RSA / Elliptic Curve Cryptography(ECC)
 
-RSA (**R**on Rivest, **A**di Shamir, and Len **A**dleman) is ontwikkeld in 1978 en gebruikt priemgetallen en vermenigvuldigingen mod N.
-Het principe is gebaseerd op het feit dat het ontbinden van priemgetallen een moeilijk probleem is.
+RSA (**R**on Rivest, **A**di Shamir, and Len **A**dleman) is ontwikkeld in 1978 en gebruikt priemgetallen en vermenigvuldigingen mod N. Het principe is gebaseerd op het feit dat het ontbinden van priemgetallen een moeilijk probleem is.
 
 ECC maakt gebuikt van elliptische krommen over eindige velden en discrete logaritmes wat net zoals bij RSA een moeilijk probleem is. Deze kromme zijn vastgesteld en worden gevalideerd footnote:[https://safecurves.cr.yp.to/]. Een van de voordelen van ECC is dat de grootte van de sleutel kleiner is, maar wel sterker. Dit maakt ECC efficienter en beter te gebruiken in het geval van beperkte rekenkracht. Het aantal valkuilen bij het vinden van een curve is ook groter, in het tweede artikel zullen we hier meer aandacht aan besteden.
 
 ### Praktijk
 
-Met een asymmetrische encryptie kun je per keer slechts een beperkt aantal bits versleutelen bijvoorbeeld met RSA-2048 kan
-het bericht uit 2048 bits bestaan. Bij ECC wordt de grootte bepaald door het veld van de curve. In de praktijk wordt
-asymmetrische encryptie vaak gebruikt als een manier om een symmetrische sleutel uit te wisselen tussen twee partijen.
-Een voorbeeld hiervan is Elliptic-curve Diffie–Hellman (ECDH), dit is een 'key agreement protocol' waarbij de symmetrische
-sleutel over een onveilig medium toch uitgewisseld kan worden. Deze symmetrische sleutel wordt dan gebruikt om het
-bericht vervolgens te versleutelen.
+Met een asymmetrische encryptie kun je per keer slechts een beperkt aantal bits versleutelen bijvoorbeeld met RSA-2048 kan het bericht uit 2048 bits bestaan. Bij ECC wordt de grootte bepaald door het veld van de curve. In de praktijk wordt asymmetrische encryptie vaak gebruikt als een manier om een symmetrische sleutel uit te wisselen tussen twee partijen. Een voorbeeld hiervan is Elliptic-curve Diffie–Hellman (ECDH), dit is een 'key agreement protocol' waarbij de symmetrische sleutel over een onveilig medium toch uitgewisseld kan worden. Deze symmetrische sleutel wordt dan gebruikt om het bericht vervolgens te versleutelen.
 
 
 ## Hashing
 
-Stel je voor: je verstuurt een bericht via een onbetrouwbaar medium, hoe kan je dan een indicatie krijgen of deze niet is
-aangetast door fouten onderweg? In andere woorden: hoe krijg je een indicatie of de integriteit van een bericht niet is
-aangepast? Hiervoor wordt onder andere de hashing methode toegepast. In feite wordt er over een plaintext met een
-hashfunctie een hash berekend: `H(Plaintext) = hash`. De plaintext kan oneindig lang zijn, terwijl de hash altijd een
-vaste lengte heeft. Je voelt hem wel aankomen: als iedere plaintext in de wereld door de hash functie heen tot een hash komt
-met een vaste lengte, dan heb je dus ergens wel 2 berichten die allebei dezelfde hash hebben. Dit noemen we een collision.
-Om te voorkomen dat je collisions krijgt, moet je een hash-algoritme kiezen wat een zo hoog mogelijke collision resistance
-heeft. De SHA (Secure Hash Algorithm) familie is een groep aan hashes die een steeds hogere collision resistance heeft. Op
-dit moment kunnen we dan ook aanbevelen om SHA-2 (256 of hoger) of SHA-3 (256) te gebruiken.
+Stel je voor: je verstuurt een bericht via een onbetrouwbaar medium, hoe kan je dan een indicatie krijgen of deze niet is aangetast door fouten onderweg? In andere woorden: hoe krijg je een indicatie of de integriteit van een bericht niet is aangepast? Hiervoor wordt onder andere de hashing methode toegepast. In feite wordt er over een plaintext met een hashfunctie een hash berekend: `H(Plaintext) = hash`. De plaintext kan oneindig lang zijn, terwijl de hash altijd een vaste lengte heeft. Je voelt hem wel aankomen: als iedere plaintext in de wereld door de hash functie heen tot een hash komt met een vaste lengte, dan heb je dus ergens wel 2 berichten die allebei dezelfde hash hebben. Dit noemen we een collision. Om te voorkomen dat je collisions krijgt, moet je een hash-algoritme kiezen wat een zo hoog mogelijke collision resistance heeft. De SHA (Secure Hash Algorithm) familie is een groep aan hashes die een steeds hogere collision resistance heeft. Op dit moment kunnen we dan ook aanbevelen om SHA-2 (256 of hoger) of SHA-3 (256) te gebruiken.
 
 ## Ondertekenen van een bericht
 
-Waar je met een hash vooral keek of de integriteit in orde was, ga je met een signature een stap verder: je valideert de
-integriteit van een bericht en je controleert of het bericht ook op die manier is verstuurd door de afzender. Een signature
-wordt namelijk gemaakt door een private key die alleen de verstuurder heeft. Je kan de signature dan weer valideren met
-de public key. Signatures zijn operaties die je niet op grote blokken plaintext direct kan zetten. In plaats daarvan
-wordt de hash van een bericht ondertekend. De ondertekening daarvan controleer je vervolgens door met de public key te
-valideren dat de signature klopt. Hoe gaat dit in zijn werk? Bekijk de onderstaande code:
+Waar je met een hash vooral keek of de integriteit in orde was, ga je met een signature een stap verder: je valideert de integriteit van een bericht en je controleert of het bericht ook op die manier is verstuurd door de afzender. Een signature wordt namelijk gemaakt door een private key die alleen de verstuurder heeft. Je kan de signature dan weer valideren met de public key. Signatures zijn operaties die je niet op grote blokken plaintext direct kan zetten. In plaats daarvan wordt de hash van een bericht ondertekend. De ondertekening daarvan controleer je vervolgens door met de public key te valideren dat de signature klopt. Hoe gaat dit in zijn werk? Bekijk de onderstaande code:
 
 [source, java]
 ----
@@ -161,9 +142,6 @@ public static byte[] signRsaPssSha512(byte[] privateKey, byte[] msg) {
 }
 ----
 
-De plaintext `msg` in de code, wordt hier ondertekend. Om dit te doen wordt er eerst een `PSSSigner` klasse in het leven `
-geroepen die een hash functie meekrijgt om een hash over het bericht te berekenen. De andere kant
+De plaintext `msg` in de code, wordt hier ondertekend. Om dit te doen wordt er eerst een `PSSSigner` klasse in het leven geroepen die een hash functie meekrijgt om een hash over het bericht te berekenen. De andere kant ?????
 
-We hebben nu alle bouwblokken beschreven en in het volgende artikel zullen we een aantal constructies
-uitlichten waar je op moet letten als je encryptie gaat gebruiken in productiecode.
-
+We hebben nu alle bouwblokken beschreven en in het volgende artikel zullen we een aantal constructies uitlichten waar je op moet letten als je encryptie gaat gebruiken in productiecode.
