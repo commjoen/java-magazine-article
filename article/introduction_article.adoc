@@ -81,11 +81,12 @@ cipher werkt op basis van een 256 bits sleutel en een 96 bits nonce en werkt doo
 
 
 ### AEAD
-Alleen het gebruik van symmetrische encryptie levert alleen confidentiality een aanvaller kan nog steeds de ciphertext
-aanpassen zonder dat de ontvanger weet dat dit niet het oorspronkelijke bericht was. Let op: het ontcijferen van een
-versleuteld bericht levert altijd een uitkomst op daarvoor moeten we de cipher text voorzien van een message authentication
+Als je symmetrische encryptie gebruikt, kan het zo zijn dat je nog geen integriteitsbescherming hebt. Bijvoorbeeld bij AES-CBC:
+indien je een aantal bits in het versleutelde bericht aanpast, kan het best zo zijn dat je nog steeds tot een geldig bericht kan komen na ontcijfering.
+Let op: het ontcijferen van een versleuteld bericht levert altijd een uitkomst op daarvoor moeten we de cipher text voorzien van een message authentication
 code (MAC) waardoor een ontvanger kan detecteren dat het bericht is aangepast. Een veelgebruikte manier is bijvoorbeeld
-het toepassen AES-CBC met een HMAC, bij ChaCha20 wordt Poly1305 gebruikt hiervoor.
+het toepassen AES-CBC met een HMAC, bij ChaCha20 wordt Poly1305 gebruikt hiervoor. Bij AES GCM zit deze integriteit automatisch ingebakken en hoef je
+geen extra MAC meer toe te passen.
 AEAD staat voor “Authenticated encryption” met “associated data”, deze vorm van encryptie biedt naast confidentiality
 van je bericht ook integriteit en echtheid te controleren. AEAD specificeert een aantal algoritmes waarbij de volgende
 input wordt verwacht:
