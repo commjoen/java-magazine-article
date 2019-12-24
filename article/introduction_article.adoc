@@ -136,7 +136,7 @@ gebruiken anders is er een aanval mogelijk op de gebruikte sleutel. Het voert te
 aandacht te besteden, zie footnote:[https://tools.ietf.org/id/draft-irtf-cfrg-gcmsiv-08.html] voor meer informatie.
 
 
-## Uitdaging
+## Uitdaging maar hoe krijg je de sleutel over de lijn?
 
 Het grote probleem van symmetrische encryptie is: op welke veilige manier kun je de sleutel delen als je niet direct met
 elkaar kunt communiceren maar als er bijvoorbeeld via het internet gedeeld moet worden, hierin kan asymmetrische encryptie
