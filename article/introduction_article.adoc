@@ -144,8 +144,7 @@ een rol spelen.
 
 ## Asymmetrische encryptie
 
-Bij deze vorm encryptie hebben Alice en Bob 2 sleutels, 1 publieke sleutel en een geheime privé sleutel ook wel een
-'key pair' genoemd. De publieke sleutels
+Bij deze vorm encryptie hebben Alice en Bob 2 sleutels, 1 publieke sleutel en een geheime privé sleutel. Deze sleutels vormen een keypair.
 kunnen Alice en Bob met elkaar delen. Als Alice een bericht naar Bob wil sturen gebruikt Alice de publieke sleutel van
 Bob en versleuteld hiermee het bericht. Vanaf dat moment is Bob de enige die het bericht kan ontcijferen omdat Bob
 de privé sleutel heeft.
