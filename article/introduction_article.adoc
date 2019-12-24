@@ -166,7 +166,8 @@ Het principe is gebaseerd op het feit dat het ontbinden van priemgetallen een mo
 ECC maakt gebuikt van elliptische krommen over eindige velden en discrete logaritmes wat net zoals bij RSA een moeilijk
 probleem is. Deze kromme zijn vastgesteld en worden gevalideerd footnote:[https://safecurves.cr.yp.to/]. Een van de
 voordelen van ECC is dat de grootte van de sleutel kleiner is, maar wel sterker. Dit maakt ECC efficienter en beter
-te gebruiken in het geval van beperkte rekenkracht.
+te gebruiken in het geval van beperkte rekenkracht. Het aantal valkuilen bij het vinden van een curve is ook groter,
+in het tweede artikel zullen we hier meer aandacht aan besteden.
 
 ### Praktijk
 
