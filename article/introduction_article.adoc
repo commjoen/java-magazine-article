@@ -32,7 +32,7 @@ Nu we de basisbegrippen even wat uitleg hebben gegeven, kunnen we aan de slag.
 ## Streaming en block-operations
 
 Voor veel encryptie algoritmes moet de computer allerlei rekenwerk doen op een serie aaneengesloten bits. Want, stel je
-voor als je iedere 128 bits wil omdraaien (transponeren noemen we dat), dan is het wel handig als je dat iedere keer weer
+voor als je iedere 128 bits wil omdraaien in een transponeer operatie, dan is het wel handig als je dat iedere keer weer
 met een blok van 128 bits kan doen. Hetzelfde geldt voor operaties waarover je een berekening wil doen. Dan is het handig
 als je iedere keer met dezelfde lengte aan bits werkt om die bits als een getal weer te kunnen geven. Ciphers die op die
 manier werken noemen we een “block-cipher”.
