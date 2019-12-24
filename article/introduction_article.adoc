@@ -1,7 +1,7 @@
 # Introductie tot cryptografie in Java
 
 Wanneer je aan de slag moet met cryptografie in Java komen er allerlei zaken op je af: hoe bereik je wat je wil?
-(Integrity, Confidentiality of Non-Repudiation) Welke mechanismen kan je gebruiken? En hoe doe je dat ongeveer?
+welke mechanismen kan je gebruiken? hoe doe je dat ongeveer?
 We nemen je mee in dit artikel door een aantal basisbegrippen. Wil je meer weten? Dan zien we je terug in de volgende
 uitgave van het Java-magazine met do’s en dont’s.
 
