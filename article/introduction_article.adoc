@@ -87,7 +87,7 @@ Let op: het ontcijferen van een versleuteld bericht levert altijd een uitkomst o
 code (MAC) waardoor een ontvanger kan detecteren dat het bericht is aangepast. Een veelgebruikte manier is bijvoorbeeld
 het toepassen AES-CBC met een HMAC, bij ChaCha20 wordt Poly1305 gebruikt hiervoor. Bij AES GCM zit deze integriteit automatisch ingebakken en hoef je
 geen extra MAC meer toe te passen.
-AEAD staat voor “Authenticated encryption” met “associated data”, deze vorm van encryptie biedt naast confidentiality
+Een alternatief kan zijn het gebruik van AEAD, dit staat voor “**a**uthenticated **e**ncryption” met “**a**ssociated **d**ata”, deze vorm van encryptie biedt naast confidentiality
 van je bericht ook integriteit en echtheid te controleren. AEAD specificeert een aantal algoritmes waarbij de volgende
 input wordt verwacht:
 
