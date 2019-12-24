@@ -53,8 +53,8 @@ velen bekend in de oren klinken maar de tweede is een stream cipher met een aant
 
 
 AES is een van de bekendste symmetrisch encryptie algoritmes. AES bestaat uit een aantal verschillende zogenaamde
-“modes”, bijvoorbeeld AES-ECB, AES-CBC, AES-CTR. Al deze modes hebben een verschillende werking. Laten we eens kijken
-naar AES-CBC, in afbeelding 1 zie je een schematische afbeelding
+“modes”, bijvoorbeeld AES-ECB, AES-CBC, AES-CTR. Een mode definieert hoe de ciphertext en de plaintext per block samen gebruikt
+worden om de encryptie en decryptie te verzorgen. Laten we eens kijken naar AES-CBC, in afbeelding 1 zie je een schematische afbeelding
 
 .AES CBC
 image::images/aes_cbc.png[]
