@@ -1,14 +1,14 @@
 # Introductie tot cryptografie in Java
 
-Wanneer je aan de slag moet met cryptografie in Java komen er allerlei zaken op je af: hoe bereik je wat je wil?
-(Integrity, Confidentiality of Non-Repudiation) Welke mechanismen kan je gebruiken? En hoe doe je dat ongeveer?
+Wanneer je aan de slag moet met cryptografie in Java komen er allerlei zaken op je af: Hoe bereik je wat je wil?
+Welke mechanismen kan je gebruiken? Hoe doe je dat ongeveer?
 We nemen je mee in dit artikel door een aantal basisbegrippen. Wil je meer weten? Dan zien we je terug in de volgende
 uitgave van het Java-magazine met do’s en dont’s.
 
 ## Even terug naar wat basis begrippen
 
-We komen cryptografie overal tegen in het dagelijks leven: wanneer we een website openen met HTTPS
-(waarbij de S voor Secure staat), wanneer we een moderne smartphone aanzetten (met versleutelde opslag) tot en met
+We komen cryptografie overal tegen in het dagelijks leven: wanneer we een website openen met HTTPS, wanneer we een moderne
+smartphone aanzetten met versleutelde opslag tot en met
 wanneer we berichtjes sturen naar onze vrienden/familie met Whatsapp/Signal/Telegram. Maar hoe werkt het nu? En
 belangrijker: hoe passen we het toe in Java? Voordat we naar de code rennen, laten we eerst even wat basisbegrippen
 uitleggen die in dit artikel vaak hergebruikt worden. Er zijn 3 security attributen die je graag wil bereiken met cryptografie:
@@ -32,17 +32,18 @@ Nu we de basisbegrippen even wat uitleg hebben gegeven, kunnen we aan de slag.
 ## Streaming en block-operations
 
 Voor veel encryptie algoritmes moet de computer allerlei rekenwerk doen op een serie aaneengesloten bits. Want, stel je
-voor als je iedere 128 bits wil omdraaien (transponeren noemen we dat), dan is het wel handig als je dat iedere keer weer
-met een blok van 128 bits kan doen. Hetzelfde geldt voor operaties waarover je een berekening wil doen. Dan is het handig
+voor als je iedere 128 bits wil omdraaien in een transponeer operatie, dan is het wel handig als je dat iedere keer weer
+met een blok van 128 bits kan doen.
+
+Hetzelfde geldt voor operaties waarover je een berekening wil doen. Dan is het handig
 als je iedere keer met dezelfde lengte aan bits werkt om die bits als een getal weer te kunnen geven. Ciphers die op die
 manier werken noemen we een “block-cipher”.
+
 Daarentegen zijn er ook ciphers die bit-voor-bit kunnen werken. Dit noemen we zogenaamde “stream-cipher”. Daarin wordt
 er vaak per bit een operatie gedaan: bijvoorbeeld een XOR tussen de plaintext bit en een stream aan random bits.
 
 Maar wat nu als we bits overhouden? Stel je voor dat je in blokjes van 128 bits werkt en opeens is het laatste stukje
-nog te versleutelen plaintext maar 32 bit. Wat doe je dan? Dan moet je de rest van het blokje opvullen.
-Dit noemen we padding. Zoals je zo meteen zult lezen, hebben alle symmetrische ciphers padding nodig zoals AES en RSA.
-
+nog te versleutelen plaintext maar 32 bit. Wat doe je dan? Dan moet je de rest van het blokje opvullen, dit noemen we padding.
 
 ## Symmetrische encryptie
 
@@ -55,27 +56,27 @@ velen bekend in de oren klinken maar de tweede is een stream cipher met een aant
 
 
 AES is een van de bekendste symmetrisch encryptie algoritmes. AES bestaat uit een aantal verschillende zogenaamde
-“modes”, bijvoorbeeld AES-ECB, AES-CBC, AES-CTR. Al deze modes hebben een verschillende werking. Laten we eens kijken
-naar AES-CBC, in afbeelding 1 zie je een schematische afbeelding
+“modes”, bijvoorbeeld AES-ECB, AES-CBC, AES-CTR. Een mode definieert hoe de ciphertext en de plaintext per blok samen gebruikt
+worden om de encryptie en decryptie te verzorgen. Laten we eens kijken naar AES-CBC, in afbeelding 1 zie je een schematische afbeelding
 
-.AES CBC
+.AES CBC (https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation)
 image::images/aes_cbc.png[]
 
 In ieder blok wordt het bericht allereerst XOR’ed met de uitkomst uit de vorige blok, voor het eerste blok wordt er
 gebruik gemaakt van een zogenaamde "Initialization Vector" (IV) om het eerste blok ook uniek te maken. AES-CBC is een
-voorbeeld van block cipher en heeft padding nodig om te zorgen dat het uiteindelijke cipher block exact 128 bits groot is.
-AES-CTR is een voorbeeld van een stream cipher de zogenoemde keystream wordt verkregen door de blok cipher toe te passen
+voorbeeld van block cipher en heeft padding nodig om te zorgen dat het uiteindelijke blok exact 128 bits groot is.
+AES-CTR is een voorbeeld van een stream cipher de zogenoemde keystream wordt verkregen door de block cipher toe te passen
 op de counter, het voordeel hiervan is dat de uiteindelijke plaintext wordt XOR’ed met de uitkomst van de encryptie
 operatie waardoor padding geen rol speelt (zie figuur 2).
 
-.AES CTR
+.AES CTR (https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation)
 image::images/aes_ctr.png[]
 
 
 ### ChaCha20
 
 Deze stream cipher footnote:[ https://tools.ietf.org/html/rfc7539#section-1.1] is ontwikkeld door Daniel J. Bernstein als alternatief op AES. Het voordeel van ChaCha20 is dat deze
-in de pure software implementatie (dus zonder specifieke hardware AES-ondersteuning) sneller is als AES. Dit maakt de
+in de pure software implementatie (dus zonder specifieke hardware AES-ondersteuning) sneller is dan AES. Dit maakt de
 cipher dus uitermate geschikt in omgevingen zonder krachtige processor. Een ander voordeel van het hebben van een
 alternatief is stel dat er een kwetsbaarheid wordt gevonden in AES dan hebben we een alternatieve implementatie. De
 cipher werkt op basis van een 256 bits sleutel en een 96 bits nonce en werkt door middel van het toepassen van “xor”,
@@ -83,12 +84,15 @@ cipher werkt op basis van een 256 bits sleutel en een 96 bits nonce en werkt doo
 
 
 ### AEAD
-Alleen het gebruik van symmetrische encryptie levert alleen confidentiality een aanvaller kan nog steeds de ciphertext
-aanpassen zonder dat de ontvanger weet dat dit niet het oorspronkelijke bericht was. Let op: het ontcijferen van een
-versleuteld bericht levert altijd een uitkomst op daarvoor moeten we de cipher text voorzien van een message authentication
-code (MAC) waardoor een ontvanger kan detecteren dat het bericht is aangepast. Een veelgebruikte manier is bijvoorbeeld
-het toepassen AES-CBC met een HMAC, bij ChaCha20 wordt Poly1305 gebruikt hiervoor.
-AEAD staat voor “Authenticated encryption” met “associated data”, deze vorm van encryptie biedt naast confidentiality
+Als je symmetrische encryptie gebruikt, kan het zo zijn dat je nog geen integriteitsbescherming hebt. Bijvoorbeeld bij
+AES-CBC: indien je een aantal bits in het versleutelde bericht aanpast, kan het best zo zijn dat je nog steeds tot een
+geldig bericht kan komen na ontcijfering. Want let wel op: bij het ontcijferen van een versleuteld bericht, zal de
+ontcijfering vaak slagen, ook bij aanpassingen. Wil je dat vookomen? Dan moeten we de cipher text voorzien van een
+message authentication code (MAC) waardoor een ontvanger kan detecteren dat het bericht is aangepast. Een veelgebruikte
+manier is bijvoorbeeld het toepassen AES-CBC met een HMAC, bij ChaCha20 wordt Poly1305 gebruikt hiervoor.
+Bij AES GCM zit deze integriteit automatisch ingebakken en hoef je geen extra MAC meer toe te passen.
+
+Een alternatief kan zijn het gebruik van AEAD, dit staat voor “**a**uthenticated **e**ncryption” met “**a**ssociated **d**ata”, deze vorm van encryptie biedt naast confidentiality
 van je bericht ook integriteit en echtheid te controleren. AEAD specificeert een aantal algoritmes waarbij de volgende
 input wordt verwacht:
 
@@ -112,10 +116,17 @@ ondersteunen de meeste libraries deze ciphers out-of-the-box.
 ## Verschil tussen een initialization vector(IV) en nonce
 
 Er is een belangrijk verschil op te merken tussen een IV en een nonce, een IV moet random zijn en een nonce kan ook
-gebaseerd zijn op een counter. In footnote:[CWE-329: http://cwe.mitre.org/data/definitions/329.html] kun je de
-aanbeveling lezen waarom de IV random moet zijn, ook een voorspelbare IV levert
-problemen op, dus stel we gebruiken
-een counter als IV dan is het voor een attacker mogelijk onder de juiste condities om het volgende uit te voeren:
+gebaseerd zijn op een counter. Een nonce in bijvoorbeeld AES GCM kan gewoon een counter zijn, het is daarbij wel belangrijk
+om dit nummer **exact 1 keer** te gebruiken anders is er een aanval mogelijk op de gebruikte sleutel. Het voert te ver om
+in dit artikel hieraan aandacht te besteden, zie footnote:[https://tools.ietf.org/id/draft-irtf-cfrg-gcmsiv-08.html] voor
+meer informatie. In footnote:[CWE-329: http://cwe.mitre.org/data/definitions/329.html] kun je de
+aanbeveling lezen waarom de IV random moet zijn, ook een voorspelbare IV (toegestaan bij een nonce) levert
+problemen op, stel we gebruiken een counter als IV dan is het voor een attacker mogelijk onder de juiste condities om
+het volgende uit te voeren, in het geval van AES CBC is een bericht als volgt versleuteld:
+
+P~alice~ = yes en C~alice~ = E(k, IV~alice~ ⊕ P~alice~) = E(k, IV~alice~ ⊕ yes)
+
+stel Eve gebruikt het volgende bericht:
 
 P~eve~ = IV~eve~ ⊕ IV~alice~ ⊕ yes
 
@@ -132,12 +143,9 @@ C~eve~ = E(k, IV~alice~ ⊕ "yes")
 Nu kan Eve dus kijken of C~eve~ gelijk is C~alice~ als dit zo is, weet Eve dat Alice de waarde "yes" heeft gebruikt.
 
 Dit voorbeeld is te vinden in onze Github repository footnote:[https://github.com/nbaars/java-magazine-article/].
-Een nonce in bv AES GCM kan gewoon een counter zijn, het is daarbij wel belangrijk om dit nummer **exact 1 keer** te
-gebruiken anders is er een aanval mogelijk op de gebruikte sleutel. Het voert te ver om in dit artikel hieraan
-aandacht te besteden, zie footnote:[https://tools.ietf.org/id/draft-irtf-cfrg-gcmsiv-08.html] voor meer informatie.
 
 
-## Uitdaging
+## Uitdaging maar hoe krijg je de sleutel over de lijn?
 
 Het grote probleem van symmetrische encryptie is: op welke veilige manier kun je de sleutel delen als je niet direct met
 elkaar kunt communiceren maar als er bijvoorbeeld via het internet gedeeld moet worden, hierin kan asymmetrische encryptie
@@ -145,8 +153,7 @@ een rol spelen.
 
 ## Asymmetrische encryptie
 
-Bij deze vorm encryptie hebben Alice en Bob 2 sleutels, 1 publieke sleutel en een geheime privé sleutel ook wel een
-'key pair' genoemd. De publieke sleutels
+Bij deze vorm encryptie hebben Alice en Bob 2 sleutels, 1 publieke sleutel en een geheime privé sleutel. Deze sleutels vormen een keypair.
 kunnen Alice en Bob met elkaar delen. Als Alice een bericht naar Bob wil sturen gebruikt Alice de publieke sleutel van
 Bob en versleuteld hiermee het bericht. Vanaf dat moment is Bob de enige die het bericht kan ontcijferen omdat Bob
 de privé sleutel heeft.
@@ -164,7 +171,8 @@ Het principe is gebaseerd op het feit dat het ontbinden van priemgetallen een mo
 ECC maakt gebuikt van elliptische krommen over eindige velden en discrete logaritmes wat net zoals bij RSA een moeilijk
 probleem is. Deze kromme zijn vastgesteld en worden gevalideerd footnote:[https://safecurves.cr.yp.to/]. Een van de
 voordelen van ECC is dat de grootte van de sleutel kleiner is, maar wel sterker. Dit maakt ECC efficienter en beter
-te gebruiken in het geval van beperkte rekenkracht.
+te gebruiken in het geval van beperkte rekenkracht. Het aantal valkuilen bij het vinden van een curve is ook groter,
+in het tweede artikel zullen we hier meer aandacht aan besteden.
 
 ### Praktijk
 
