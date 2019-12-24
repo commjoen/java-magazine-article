@@ -40,9 +40,7 @@ Daarentegen zijn er ook ciphers die bit-voor-bit kunnen werken. Dit noemen we zo
 er vaak per bit een operatie gedaan: bijvoorbeeld een XOR tussen de plaintext bit en een stream aan random bits.
 
 Maar wat nu als we bits overhouden? Stel je voor dat je in blokjes van 128 bits werkt en opeens is het laatste stukje
-nog te versleutelen plaintext maar 32 bit. Wat doe je dan? Dan moet je de rest van het blokje opvullen.
-Dit noemen we padding. Zoals je zo meteen zult lezen, hebben alle symmetrische ciphers padding nodig zoals AES en RSA.
-
+nog te versleutelen plaintext maar 32 bit. Wat doe je dan? Dan moet je de rest van het blokje opvullen, dit noemen we padding.
 
 ## Symmetrische encryptie
 
