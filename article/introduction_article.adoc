@@ -73,7 +73,7 @@ image::images/aes_ctr.png[]
 ### ChaCha20
 
 Deze stream cipher footnote:[ https://tools.ietf.org/html/rfc7539#section-1.1] is ontwikkeld door Daniel J. Bernstein als alternatief op AES. Het voordeel van ChaCha20 is dat deze
-in de pure software implementatie (dus zonder specifieke hardware AES-ondersteuning) sneller is als AES. Dit maakt de
+in de pure software implementatie (dus zonder specifieke hardware AES-ondersteuning) sneller is dan AES. Dit maakt de
 cipher dus uitermate geschikt in omgevingen zonder krachtige processor. Een ander voordeel van het hebben van een
 alternatief is stel dat er een kwetsbaarheid wordt gevonden in AES dan hebben we een alternatieve implementatie. De
 cipher werkt op basis van een 256 bits sleutel en een 96 bits nonce en werkt door middel van het toepassen van “xor”,
