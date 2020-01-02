@@ -20,7 +20,7 @@ Cryptografie kent een aantal soorten begrippen:
 - Signing: het ondertekenen van een bericht
 - Signature: de handtekening als output van een sign operatie.
 
-Nu we de basisbegrippen even wat uitleg hebben gegeven, kunnen we aan de slag.
+Nu we de basisbegrippen even wat uitleg hebben gegeven, kunnen we aan de slag. Van bijna alle hieronder genoemde vormen van encryptie hebben we in https://github.com/nbaars/java-magazine-article/ een aantal voorbeelden opgenomen. Deze voorbeelden zijn voorzien van uitgebreid commentaar zodat je deze code kunt hergebruiken.
 
 ## Streaming en block-operations
 
@@ -44,7 +44,7 @@ AES is een van de bekendste symmetrisch encryptie algoritmes. AES bestaat uit ee
 .AES CBC (https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation)
 image::images/aes_cbc.png[]
 
-In ieder blok wordt het bericht allereerst XOR’ed met de uitkomst uit de vorige blok, voor het eerste blok wordt er gebruik gemaakt van een zogenaamde "Initialization Vector" (IV) om het eerste blok ook uniek te maken. AES-CBC is een voorbeeld van block cipher en heeft padding nodig om te zorgen dat het uiteindelijke blok exact 128 bits groot is. AES-CTR is een voorbeeld van een stream cipher de zogenoemde keystream wordt verkregen door de block cipher toe te passen op de counter, het voordeel hiervan is dat de uiteindelijke plaintext wordt XOR’ed met de uitkomst van de encryptie operatie waardoor padding geen rol speelt (zie figuur 2).
+In ieder blok wordt het bericht allereerst XOR’ed met de uitkomst uit de vorige blok, voor het eerste blok wordt er gebruik gemaakt van een zogenaamde "Initialization Vector" (IV) om het eerste blok ook uniek te maken. AES-CBC is een voorbeeld van block cipher en heeft padding nodig om te zorgen dat het uiteindelijke blok exact 128 bits groot is. AES-CTR is een voorbeeld van een stream cipher de zogenoemde keystream wordt verkregen door de block cipher toe te passen op de counter, het voordeel hiervan is dat de uiteindelijke plaintext wordt XOR’ed met de uitkomst van de encryptie operatie waardoor padding geen rol speelt (zie figuur 2). Een voorbeeld van AES-CBC kun je vinden in de Github repository.
 
 .AES CTR (https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation)
 image::images/aes_ctr.png[]
@@ -52,8 +52,7 @@ image::images/aes_ctr.png[]
 
 ### ChaCha20
 
-Deze stream cipher footnote:[ https://tools.ietf.org/html/rfc7539#section-1.1] is ontwikkeld door Daniel J. Bernstein als alternatief op AES. Het voordeel van ChaCha20 is dat deze in de pure software implementatie (dus zonder specifieke hardware AES-ondersteuning) sneller is dan AES. Dit maakt de cipher dus uitermate geschikt in omgevingen zonder krachtige processor. Een ander voordeel van het hebben van een alternatief is stel dat er een kwetsbaarheid wordt gevonden in AES dan hebben we een alternatieve implementatie. De cipher werkt op basis van een 256 bits sleutel en een 96 bits nonce en werkt door middel van het toepassen van “xor”, “add” en “rotate” functies, in totaal worden 20 rondes uitgevoerd.
-
+Deze stream cipher, beschikbaar in Java 11 footnote:[ https://tools.ietf.org/html/rfc7539#section-1.1] is ontwikkeld door Daniel J. Bernstein als alternatief op AES. Het voordeel van ChaCha20 is dat deze in de pure software implementatie (dus zonder specifieke hardware AES-ondersteuning) sneller is dan AES. Dit maakt de cipher dus uitermate geschikt in omgevingen zonder krachtige processor. Een ander voordeel van het hebben van een alternatief is stel dat er een kwetsbaarheid wordt gevonden in AES dan hebben we een alternatieve implementatie. De cipher werkt op basis van een 256 bits sleutel en een 96 bits nonce en werkt door middel van het toepassen van “xor”, “add” en “rotate” functies, in totaal worden 20 rondes uitgevoerd. Zie ChaCha20 in de Github repository voor een voorbeeld
 
 ### AEAD
 Als je symmetrische encryptie gebruikt, kan het zo zijn dat je nog geen integriteitsbescherming hebt. Bijvoorbeeld bij AES-CBC: indien je een aantal bits in het versleutelde bericht aanpast, kan het best zo zijn dat je nog steeds tot een geldig bericht kan komen na ontcijfering. Want let wel op: bij het ontcijferen van een versleuteld bericht, zal de ontcijfering vaak slagen, ook bij aanpassingen. Wil je dat vookomen? Dan moeten we de cipher text voorzien van een message authentication code (MAC) waardoor een ontvanger kan detecteren dat het bericht is aangepast. Een veelgebruikte manier is bijvoorbeeld het toepassen AES-CBC met een HMAC, bij ChaCha20 wordt Poly1305 gebruikt hiervoor.Bij AES GCM zit deze integriteit automatisch ingebakken en hoef je geen extra MAC meer toe te passen.
@@ -142,6 +141,8 @@ public static byte[] signRsaPssSha512(byte[] privateKey, byte[] msg) {
 }
 ----
 
-De plaintext `msg` in de code, wordt hier ondertekend. Om dit te doen wordt er eerst een `PSSSigner` klasse in het leven geroepen die een hash functie meekrijgt om een hash over het bericht te berekenen. De andere kant ?????
+De plaintext `msg` in de code, wordt hier ondertekend. Om dit te doen wordt er eerst een `PSSSigner` klasse in het leven `
+geroepen die een hash functie meekrijgt om een hash over het bericht te berekenen. De andere kant kan met de publieke
+sleutel de signature valideren.
 
 We hebben nu alle bouwblokken beschreven en in het volgende artikel zullen we een aantal constructies uitlichten waar je op moet letten als je encryptie gaat gebruiken in productiecode.
