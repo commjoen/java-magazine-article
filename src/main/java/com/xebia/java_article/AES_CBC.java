@@ -10,11 +10,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 
+import static com.xebia.java_article.Utils.generateIV;
 import static com.xebia.java_article.Utils.generateKeyForAES;
 
 public class AES_CBC {
 
     public static void main(String[] args) {
+        //Generate a 256 bits key, the key defines the strength of the AES encryption, possible values: AES-128/AES-192 and AES-256
         SecretKey secretKey = generateKeyForAES();
 
         byte[] encryptedMsg = encrypt(secretKey, "Java magazine article".getBytes());
@@ -24,15 +26,17 @@ public class AES_CBC {
 
     public static byte[] encrypt(SecretKey secretKey, byte[] message) {
         try {
-            //PKCS5Padding is for 8 bytes padding only but internally Java uses PKCS7Padding you can only specify "AES/CBC/PKCS7Padding"
-            //if you add BouncyCastle as security provider you can use AES/CBC/PKCS7Padding directly
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            //Generate the IV yourself, as Cipher.getIV() might return a non random one it all depends on the underlying security provider
+            byte[] iv = generateIV();
 
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(iv));
 
             //Concatenate the IV and the encrypted message (IV MUST BE random)
-            return ByteUtils.concatenate(cipher.getIV(), cipher.doFinal(message));
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+            return ByteUtils.concatenate(iv, cipher.doFinal(message));
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e) {
+            // Never ever leak details about what went wrong during the encryption / decryption otherwise you might be
+            // vulnerable to a padding oracle attack, timing attack etc.
             throw new CryptoException("Unable to encrypt message");
         }
     }

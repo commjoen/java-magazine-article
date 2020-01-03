@@ -24,14 +24,15 @@ public class ChaCha20 {
 
     public static byte[] encrypt(SecretKey secretKey, byte[] message) {
         try {
-            Cipher cipher = Cipher.getInstance("ChaCha20");
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            //A nonce does not need to be random it should never be used again (only for one encryption under the same key)
+            byte[] nonce = {0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x4a, 0x00, 0x00, 0x00, 0x00};
 
-            //Initialization without a ChaCha20ParameterSpec will cause the cipher to generate its own 12-byte nonce
-            //internally and set the counter value to 1. The counter bytes may be obtained by invoking the Cipher.getIV() method.
+            Cipher cipher = Cipher.getInstance("ChaCha20");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, new ChaCha20ParameterSpec(nonce, 1));
+
             //Concatenate the nonce and the encrypted message, this is optional as the nonce and the counter can be shared in advance
-            return ByteUtils.concatenate(cipher.getIV(), cipher.doFinal(message));
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+            return ByteUtils.concatenate(nonce, cipher.doFinal(message));
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
             throw new CryptoException("Unable to encrypt message");
         }

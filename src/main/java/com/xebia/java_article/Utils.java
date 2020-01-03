@@ -5,8 +5,15 @@ import javax.crypto.SecretKey;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 public class Utils {
+
+    public static byte[] generateIV() {
+        byte[] ivBytes = new byte[16];
+        new SecureRandom().nextBytes(ivBytes);
+        return ivBytes;
+    }
 
     /**
      * Generate a key for AES (be aware: if you do not specify the key size it is up to the provider to select the

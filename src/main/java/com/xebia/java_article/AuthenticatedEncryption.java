@@ -10,7 +10,9 @@ import java.util.Arrays;
 import java.util.Base64;
 
 /**
- * Example of e
+ * Example of authenticated encryption bases on AES-CBC and an HMAC.
+ * In this example we use first Encrypt-then-MAC. Other options are MAC-then-Encrypt, Encrypt-and-MAC, you can read
+ * http://cseweb.ucsd.edu/~mihir/papers/oem.pdf here about the differences between those.
  */
 public class AuthenticatedEncryption {
 
@@ -19,7 +21,7 @@ public class AuthenticatedEncryption {
         SecretKey authenticationKey = Utils.generateKeyForHMAC();
 
         byte[] encryptedMsg = AES_CBC.encrypt(secretKey, "Java magazine article".getBytes());
-        byte[] authentication = authenticateMessage(authenticationKey, encryptedMsg);
+        byte[] authentication = addHMAC(authenticationKey, encryptedMsg);
         byte[] authenticatedEncryptedMsg = ByteUtils.concatenate(encryptedMsg, authentication);
 
         System.out.println("Encrypted authenticated message is: " + Base64.getEncoder().encodeToString(authenticatedEncryptedMsg));
@@ -30,7 +32,7 @@ public class AuthenticatedEncryption {
         System.out.println("Decrypting with authenticated message: " + verifyAndDecryptMessage(secretKey, authenticationKey, authenticatedEncryptedMsg));
     }
 
-    private static byte[] authenticateMessage(SecretKey authenticationKey, byte[] msg) {
+    private static byte[] addHMAC(SecretKey authenticationKey, byte[] msg) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(authenticationKey);
@@ -50,7 +52,7 @@ public class AuthenticatedEncryption {
 
             //And compare them
             return org.bouncycastle.util.Arrays.constantTimeAreEqual(receivedAuthentication, calculatedAuthentication);
-            //using a constant equals function otherwise we are again susceptible to a timing attack
+            //using a constant equals function otherwise we are susceptible to a timing attack
 
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             throw new CryptoException("Unable to verify");
