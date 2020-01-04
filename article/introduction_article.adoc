@@ -12,7 +12,7 @@ We komen cryptografie overal tegen in het dagelijks leven: wanneer we een websit
 
 Cryptografie kent een aantal soorten begrippen:
 
-- Plaintext: de tekst waar geen cryptografische actie op vereist is om te lezen. Plaintext hoeft niet per se tekst te zijn: dit kan ook gewoon een serie bytes zijn die bijvoorbeeld bestaat uit gecompileerde applicatiecode.
+- Plaintext: de originele niet versleutelde content. Plaintext hoeft niet per se tekst te zijn: dit kan ook gewoon een serie bytes zijn die bijvoorbeeld bestaat uit gecompileerde applicatiecode.
 - Ciphertext: de tekst waarop een encryptie operatie heeft plaatsgevonden. De inhoud is versleuteld of encrypted.
 - Cipher: een geïnitialiseerd encryptie/decryptie algoritme.
 - Encryption: het versleutelen van plaintext naar ciphertext.
@@ -21,23 +21,21 @@ Cryptografie kent een aantal soorten begrippen:
 - Signature: de handtekening als output van een sign operatie.
 
 Nu we de basisbegrippen even wat uitleg hebben gegeven, kunnen we aan de slag. Van bijna alle hieronder genoemde vormen van encryptie hebben we in https://github.com/nbaars/java-magazine-article/ een aantal voorbeelden opgenomen. Deze voorbeelden zijn voorzien van uitgebreid commentaar zodat je deze code kunt hergebruiken.
+image::images/qr-repo.png[Repo-url,300,200]
 
 ## Streaming en block-operations
 
-Voor veel encryptie algoritmes moet de computer allerlei rekenwerk doen op een serie aaneengesloten bits. Want, stel je voor als je iedere 128 bits wil omdraaien in een transponeer operatie, dan is het wel handig als je dat iedere keer weer met een blok van 128 bits kan doen.
-
-Hetzelfde geldt voor operaties waarover je een berekening wil doen. Dan is het handig als je iedere keer met dezelfde lengte aan bits werkt om die bits als een getal weer te kunnen geven. Ciphers die op die manier werken noemen we een “block-cipher”.
+Voor veel encryptie algoritmes moet de computer allerlei rekenwerk doen op een serie aaneengesloten bits. Vaak is het dan niet efficient om deze bits allemaal tegelijk te verwerken. In plaats daarvan is het efficiënter om de serie bits in blokken op te delen van gelijke lengte (bijv. 128 bit) zodat operaties efficient uitgevoerd kunnen worden. Op die manier kan je dan iedere keer die 128 bits op dezelfde manier door elkaar halen (transponeren) of als een getal weergeven om er rekenwerk mee te doen. Ciphers die op die manier werken noemen we een “block-cipher”.
 
 Daarentegen zijn er ook ciphers die bit-voor-bit kunnen werken. Dit noemen we zogenaamde “stream-cipher”. Daarin wordt er vaak per bit een operatie gedaan: bijvoorbeeld een XOR tussen de plaintext bit en een stream aan random bits.
 
 Maar wat nu als we bits overhouden? Stel je voor dat je in blokjes van 128 bits werkt en opeens is het laatste stukje nog te versleutelen plaintext maar 32 bit. Wat doe je dan? Dan moet je de rest van het blokje opvullen, dit noemen we padding.
 
-## Symmetrische encryptie
+## Symmetrische encryptie (HVG!)
 
 Een van de vormen van encryptie is de zogenaamde symmetrische encryptie. In dit geval delen Alice en Bob een sleutel waarmee het bericht wordt versleuteld en kan worden ontcijferd. Binnen deze groep heb je zowel stream ciphers als block ciphers in dit artikel beperken we ons tot volgende populaire algoritmen: AES en ChaCha20. De eerste zal bij velen bekend in de oren klinken maar de tweede is een stream cipher met een aantal verrassende eigenschappen.
 
 ### AES
-
 
 AES is een van de bekendste symmetrisch encryptie algoritmes. AES bestaat uit een aantal verschillende zogenaamde “modes”, bijvoorbeeld AES-ECB, AES-CBC, AES-CTR. Een mode definieert hoe de ciphertext en de plaintext per blok samen gebruikt worden om de encryptie en decryptie te verzorgen. Laten we eens kijken naar AES-CBC, in afbeelding 1 zie je een schematische afbeelding
 
