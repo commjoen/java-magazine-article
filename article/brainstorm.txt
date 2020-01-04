@@ -19,3 +19,4 @@ HMAC
 2e artikel:
 
 - hoeveel keer encrypten met dezelfde sleutel AES...
+- AES GCM vs AES-GCM-SIV

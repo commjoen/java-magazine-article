@@ -61,7 +61,7 @@ public class PredicatableIV {
         return cipher.doFinal(plaintext);
     }
 
-    private static byte[] xor(byte[] a, byte[] b) {
+    public static byte[] xor(byte[] a, byte[] b) {
         byte[] result = new byte[Math.min(a.length, b.length)];
 
         for (int i = 0; i < result.length; i++) {
