@@ -31,18 +31,20 @@ Daarentegen zijn er ook ciphers die bit-voor-bit kunnen werken. Dit noemen we zo
 
 Maar wat nu als we bits overhouden? Stel je voor dat je in blokjes van 128 bits werkt en opeens is het laatste stukje nog te versleutelen plaintext maar 32 bit. Wat doe je dan? Dan moet je de rest van het blokje opvullen, dit noemen we padding.
 
-## Symmetrische encryptie (HVG!)
+## Symmetrische encryptie
 
-Een van de vormen van encryptie is de zogenaamde symmetrische encryptie. In dit geval delen Alice en Bob een sleutel waarmee het bericht wordt versleuteld en kan worden ontcijferd. Binnen deze groep heb je zowel stream ciphers als block ciphers in dit artikel beperken we ons tot volgende populaire algoritmen: AES en ChaCha20. De eerste zal bij velen bekend in de oren klinken maar de tweede is een stream cipher met een aantal verrassende eigenschappen.
+In het geval dat de encryptie en de decryptie met dezelfde sleutel gebeuren, hebben we het over symmetrische encryptie. Er zijn allerlei block- en streamciphers die dit principe toepassen. Laten we naar twee voorbeelden kijken: Advanced Encryption standard (AES) en ChaCha20.
 
 ### AES
 
-AES is een van de bekendste symmetrisch encryptie algoritmes. AES bestaat uit een aantal verschillende zogenaamde “modes”, bijvoorbeeld AES-ECB, AES-CBC, AES-CTR. Een mode definieert hoe de ciphertext en de plaintext per blok samen gebruikt worden om de encryptie en decryptie te verzorgen. Laten we eens kijken naar AES-CBC, in afbeelding 1 zie je een schematische afbeelding
+AES is een van de bekendste symmetrisch encryptie algoritmes. AES beschrijft een encryptie- en decryptie alogoritme dat een sleutel van 128, 192 of 256 bit neemt en de plaintext encrypt of de ciphertext decrypt. Hoe het precies werkt gaat net even te ver voor dit artikel. Belangrijker is hoe dit algoritme wordt toegepast. Deze verschillende manieren noemen we "modes". Een aantal bekende modes zijn AES-CBC, AES-GCM en AES-CTR. Laten we eens kijken naar AES-CBC (AES Cipher Block Chaining), in afbeelding 1 zie je een schematische afbeelding.
 
 .AES CBC (https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation)
 image::images/aes_cbc.png[]
 
-In ieder blok wordt het bericht ge-XOR’ed met de uitkomst uit de vorige blok, voor het eerste blok wordt er gebruik gemaakt van een zogenaamde "Initialization Vector" (IV) om het eerste blok ook uniek te maken. Deze IV is een serie aan random bits. AES-CBC is een voorbeeld van block cipher en heeft padding nodig om te zorgen dat het uiteindelijke blok exact 128 bits groot is. AES-CTR is een voorbeeld van een stream cipher de zogenoemde keystream wordt verkregen door de block cipher toe te passen op de counter, het voordeel hiervan is dat de uiteindelijke plaintext wordt XOR’ed met de uitkomst van de encryptie operatie waardoor padding geen rol speelt (zie figuur 2). Een voorbeeld van AES-CBC kun je vinden in de Github repository.
+In ieder blok wordt het bericht ge-XOR’ed met de uitkomst uit het vorige blok. Om het eerste blok uniek en onvoorspelbaar te maken, wordt er in het begin geen ciphertext of plaintext gebruikt, maar een block ranodm bits. Dit block noemen we een "Initialization Vector" (IV). Aan het einde van alle operaties kom je bij het laatste blok. Hier moet het blok uiteindelijk ook 128 bit lang zijn. Is de te verwerken plaintext daar korter? Dan komt ook hier de padding om te hoek kijken.
+
+Dit is weer helemaal anders bij AES-CTR (AES-Counter). AES-CTR is een voorbeeld van een stream cipher. Bij een streamcipher wordt er gebruik gemaakt van een keystream die per bit ge-XOR-ed wordt met de plaintext bits bij de encryptie. De keystream wordt verkregen door de block cipher toe te passen op de counter. Het voordeel hiervan is dat de uiteindelijke plaintext wordt XOR’ed met de uitkomst van de encryptie operatie waardoor padding geen rol speelt (zie figuur 2). Een voorbeeld van AES-CBC kun je vinden in de Github repository.
 
 .AES CTR (https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation)
 image::images/aes_ctr.png[]
@@ -53,6 +55,7 @@ image::images/aes_ctr.png[]
 Deze stream cipher, beschikbaar in Java 11 footnote:[ https://tools.ietf.org/html/rfc7539#section-1.1] is ontwikkeld door Daniel J. Bernstein als alternatief op AES. Het voordeel van ChaCha20 is dat deze in de pure software implementatie (dus zonder specifieke hardware AES-ondersteuning) sneller is dan AES. Dit maakt de cipher dus uitermate geschikt in omgevingen zonder krachtige processor. Een ander voordeel van het hebben van een alternatief is stel dat er een kwetsbaarheid wordt gevonden in AES dan hebben we een alternatieve implementatie. De cipher werkt op basis van een 256 bits sleutel en een 96 bits nonce en werkt door middel van het toepassen van “xor”, “add” en “rotate” functies, in totaal worden 20 rondes uitgevoerd. Zie ChaCha20 in de Github repository voor een voorbeeld
 
 ### AEAD
+
 Als je symmetrische encryptie gebruikt, kan het zo zijn dat je nog geen integriteitsbescherming hebt. Bijvoorbeeld bij AES-CBC: indien je een aantal bits in het versleutelde bericht aanpast, kan het best zo zijn dat je nog steeds tot een geldig bericht kan komen na ontcijfering. Want let wel op: bij het ontcijferen van een versleuteld bericht, zal de ontcijfering vaak slagen, ook bij aanpassingen. Wil je dat vookomen? Dan moeten we de cipher text voorzien van een message authentication code (MAC) waardoor een ontvanger kan detecteren dat het bericht is aangepast. Een veelgebruikte manier is bijvoorbeeld het toepassen AES-CBC met een HMAC, bij ChaCha20 wordt Poly1305 gebruikt hiervoor.Bij AES GCM zit deze integriteit automatisch ingebakken en hoef je geen extra MAC meer toe te passen.
 
 Een alternatief kan zijn het gebruik van AEAD, dit staat voor “**a**uthenticated **e**ncryption” met “**a**ssociated **d**ata”, deze vorm van encryptie biedt naast confidentiality van je bericht ook integriteit en echtheid te controleren. AEAD specificeert een aantal algoritmes waarbij de volgende input wordt verwacht:
