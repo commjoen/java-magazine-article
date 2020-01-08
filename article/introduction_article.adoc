@@ -54,69 +54,45 @@ image::images/aes_ctr.png[]
 
 Deze stream cipher, beschikbaar in Java 11 footnote:[ https://tools.ietf.org/html/rfc7539#section-1.1] is ontwikkeld als alternatief op AES. Het voordeel van ChaCha20 is dat deze in de pure software implementatie (dus zonder specifieke hardware AES-ondersteuning) sneller is dan AES. Dit maakt de cipher dus uitermate geschikt in omgevingen zonder krachtige processor. ChaCha20 werkt op basis van 256 bits sleutels en 96 bits nonces, het is een stream cipher wat intern op blocks vertrouwd, net als AES-CTR. Zie ChaCha20 in de Github repository voor een voorbeeld.
 
-### AEAD
+### Authenticated Encryption with Associated Data (AEAD)
 
-Als je symmetrische encryptie gebruikt, kan het zo zijn dat je nog geen integriteitsbescherming hebt. Bijvoorbeeld bij AES-CBC: indien je een aantal bits in het versleutelde bericht aanpast, kan het best zo zijn dat je nog steeds tot een geldig, maar aangepast bericht kan komen na ontcijfering. Wil je dat vookomen? Dan moeten we de cipher text voorzien van een message authentication code (MAC) waardoor een ontvanger kan detecteren dat het bericht is aangepast. Een veelgebruikte manier is bijvoorbeeld het toepassen AES-CBC met een HMAC, bij ChaCha20 wordt Poly1305 gebruikt hiervoor. Bij AES-GCM (AES Gallois Counter Mode) zit deze integriteit automatisch ingebakken en hoef je geen extra MAC meer toe te passen.
+Bij veel verschillende ciphers heb je nog geen integriteitsbescherming. Bijvoorbeeld bij AES-CBC: indien je een aantal bits in het versleutelde bericht aanpast, kan het best zo zijn dat je nog steeds tot een geldig, maar aangepast bericht kan komen na ontcijfering. Wil je dat vookomen? Dan moeten we de cipher text voorzien van een message authentication code (MAC) waardoor een ontvanger kan detecteren dat het bericht is aangepast. Een veelgebruikte manier is bijvoorbeeld het toepassen AES-CBC met een HMAC, bij ChaCha20 wordt Poly1305 gebruikt hiervoor. 
 
-Een alternatief kan zijn het gebruik van AEAD, dit staat voor “**a**uthenticated **e**ncryption” met “**a**ssociated **d**ata”, deze vorm van encryptie biedt naast confidentiality van je bericht ook integriteit en echtheid te controleren. AEAD specificeert een aantal algoritmes waarbij de volgende input wordt verwacht:
+Bij AES-GCM (AES Gallois Counter Mode) zit deze integriteit automatisch ingebakken en hoef je geen extra MAC meer toe te passen. AES-GCM is een voorbeeld van AEAD. Dit staat voor “**a**uthenticated **e**ncryption” met “**a**ssociated **d**ata”, deze vorm van encryptie biedt naast confidentiality van je bericht ook integriteit en echtheid te controleren. AEAD specificeert een aantal algoritmes waarbij de volgende input wordt verwacht:
 
 - Key: sleutel voor de encryptie
 - Nonce(number used only once) een getal wat eenmalig gebruikt mag worden onder dezelfde sleutel!
 - Plaintext
 - Associated data wordt niet opgenomen in de ciphertext maar wordt wel meegenomen in de integriteitscontrole, een aanvaller kan dit niet maar zo aanpassen.
 
-Tijdens de ontsleuteling van het bericht wordt allereerst gekeken of de integriteit van het bericht klopt (is er niets aangepast) als dat wel het geval is, stopt het algoritme. Als deze stap correct is wordt het bericht verder ontcijferd.
+Tijdens de ontsleuteling van het bericht wordt allereerst gekeken of de integriteit van het bericht klopt. Is er iets aangepast? Dan stopt het cipher. Als de integriteit ok bevonden is, wordt het bericht verder ontcijferd.
 
-Associated data kan worden gebruikt om een bepaalde context aan te geven en omdat deze data buiten de ciphertext staat kun je eerst valideren of de decryptie plaatsvindt in de juiste context.
+Als aanvulling kan associated data worden gebruikt om een bepaalde context aan te geven. Bijvoorbeeld: als authenticated associated data kan je een app-identifier gebruiken zodat data alleen te decrypten is op de app-instance met dat app-id. 
 
-De vraag is nu hoe maken we onze bovenstaande ciphers AEAD compatible? Gelukkig zijn hier specificaties voor en ondersteunen de meeste libraries deze ciphers out-of-the-box.
-
-
-## Verschil tussen een initialization vector(IV) en nonce
-
-Er is een belangrijk verschil op te merken tussen een IV en een nonce, een IV moet random zijn en een nonce kan ook gebaseerd zijn op een counter. Een nonce in bijvoorbeeld AES GCM kan gewoon een counter zijn, het is daarbij wel belangrijk om dit nummer **exact 1 keer** te gebruiken anders is er een aanval mogelijk op de gebruikte sleutel. Het voert te ver om in dit artikel hieraan aandacht te besteden, zie footnote:[https://tools.ietf.org/id/draft-irtf-cfrg-gcmsiv-08.html] voor meer informatie. In footnote:[CWE-329: http://cwe.mitre.org/data/definitions/329.html] kun je de aanbeveling lezen waarom de IV random moet zijn, ook een voorspelbare IV (toegestaan bij een nonce) levert problemen op, stel we gebruiken een counter als IV dan is het voor een attacker mogelijk onder de juiste condities om het volgende uit te voeren, in het geval van AES CBC is een bericht als volgt versleuteld:
-
-P~alice~ = yes en C~alice~ = E(k, IV~alice~ ⊕ P~alice~) = E(k, IV~alice~ ⊕ yes)
-
-stel Eve gebruikt het volgende bericht:
-
-P~eve~ = IV~eve~ ⊕ IV~alice~ ⊕ yes
-
-Als we dit versleutelen krijgen we:
-
-C~eve~ = E(k, IV~eve~ ⊕ P~eve~) = E(k, IV~eve~ ⊕ (IV~eve~ ⊕ IV~alice~ ⊕ yes))
-
-dit levert:
-
-IV~eve~ ⊕ IV~eve~ kunnen we tegen elkaar wegstrepen dus:
-
-C~eve~ = E(k, IV~alice~ ⊕ "yes")
-
-Nu kan Eve dus kijken of C~eve~ gelijk is C~alice~ als dit zo is, weet Eve dat Alice de waarde "yes" heeft gebruikt.
-
-Dit voorbeeld is te vinden in onze Github repository footnote:[https://github.com/nbaars/java-magazine-article/].
-
+Let wel op! Een Nonce is géén IV. Een Nonce mag je maar écht 1 keer gebruiken! Gebruik je hem vaker, dan kom je in de problemen. Meer hierover kan je lezen in footnote:[https://tools.ietf.org/id/draft-irtf-cfrg-gcmsiv-08.html]. Aan de andere kant: gebruik echt random IVs als je een IV nodig hebt! Indien je wel een counter gebruikt als IV, dan kan je in de problemen komen. Een voorbeeld hiervan is te vinden in onze Github repository footnote:[https://github.com/nbaars/java-magazine-article/].
 
 ## Uitdaging maar hoe krijg je de sleutel over de lijn?
 
-Het grote probleem van symmetrische encryptie is: op welke veilige manier kun je de sleutel delen als je niet direct met elkaar kunt communiceren maar als er bijvoorbeeld via het internet gedeeld moet worden, hierin kan asymmetrische encryptie een rol spelen.
+Het grote probleem van symmetrische encryptie is: op welke veilige manier kun je de sleutel delen over een medium zoals het internet? Hier kan asymmetrische encryptie bij helpen.
 
 ## Asymmetrische encryptie
 
-Bij deze vorm encryptie hebben Alice en Bob 2 sleutels, 1 publieke sleutel en een geheime privé sleutel. Deze sleutels vormen een keypair. Deze kunnen Alice en Bob met elkaar delen. Als Alice een bericht naar Bob wil sturen gebruikt Alice de publieke sleutel van Bob en versleuteld hiermee het bericht. Vanaf dat moment is Bob de enige die het bericht kan ontcijferen omdat Bob de privé sleutel heeft.
+Bij deze vorm encryptie hebben de verzender (voor nu even Alice) en de ontvanger (noemen we Bob) allebei 2 sleutels: 1 publieke sleutel en een geheime privé sleutel. Deze sleutels vormen een keypair. De publieke sleutel kunnen Alice en Bob met elkaar delen. Als Alice een bericht naar Bob wil sturen gebruikt Alice de publieke sleutel van Bob en versleuteld hiermee het bericht. Vanaf dat moment is Bob de enige die het bericht kan ontcijferen omdat Bob de privé sleutel heeft.
 
-Hoe de sleutel uitwisseling in de praktijk op een veilige manier moet gebeuren is buiten de scope van dit artikel. Je kunt je voorstellen als Alice de sleutel naar Bob wil sturen zou een Eve dit bericht kunnen onderscheppen en haar eigen publieke sleutel aan Bob geven. Als Bob dan met Alice wil communiceren kan Eve dit bericht lezen omdat Eve de bijbehorende geheime sleutel heeft.
+Hoe de sleutel uitwisseling in de praktijk op een veilige manier moet gebeuren is buiten de scope van dit artikel. Want ook hier kan van alles misgaan. 
 
-### RSA / Elliptic Curve Cryptography(ECC)
+Voor nu hebben we twee voorbeelden van asymetrische cryptografie: RSA (**R**on Rivest, **A**di Shamir, and Len **A**dleman) en ECC (Elliptic Curve Cryptography):
 
-RSA (**R**on Rivest, **A**di Shamir, and Len **A**dleman) is ontwikkeld in 1978 en gebruikt priemgetallen en vermenigvuldigingen mod N. Het principe is gebaseerd op het feit dat het ontbinden van priemgetallen een moeilijk probleem is.
+### RSA & ECC
+
+ RSA is ontwikkeld in 1978 en gebruikt priemgetallen en vermenigvuldigingen mod N. Het principe is gebaseerd op het feit dat het ontbinden van priemgetallen een moeilijk probleem is. Het vinden van de juiste grote priemgetallen wordt gelukkig door Java voor je opgelost, zodat je uiteindelijk tot een publieke exponent en de juiste publieke N komt als publieke sleutel. RSA-X staat ook eigenlijk voor de lengte van N in bits: bij RSA-1024 is N 1024 bits lang, bij RSA-4096 is N 4096 bits lang.
 
 ECC maakt gebuikt van elliptische krommen over eindige velden en discrete logaritmes wat net zoals bij RSA een moeilijk probleem is. Deze kromme zijn vastgesteld en worden gevalideerd footnote:[https://safecurves.cr.yp.to/]. Een van de voordelen van ECC is dat de grootte van de sleutel kleiner is, maar wel sterker. Dit maakt ECC efficienter en beter te gebruiken in het geval van beperkte rekenkracht. Het aantal valkuilen bij het vinden van een curve is ook groter, in het tweede artikel zullen we hier meer aandacht aan besteden.
 
 ### Praktijk
 
-Met een asymmetrische encryptie kun je per keer slechts een beperkt aantal bits versleutelen bijvoorbeeld met RSA-2048 kan het bericht uit maximaal 2048 bits bestaan (minus de padding). Bij ECC wordt de grootte bepaald door het veld van de curve. In de praktijk wordt asymmetrische encryptie vaak gebruikt als een manier om een symmetrische sleutel uit te wisselen tussen twee partijen. Een voorbeeld hiervan is Elliptic-curve Diffie–Hellman (ECDH), dit is een 'key agreement protocol' waarbij de symmetrische sleutel over een onveilig medium toch uitgewisseld kan worden. Deze symmetrische sleutel wordt dan gebruikt om het bericht vervolgens te versleutelen.
-
+Met een asymmetrisch cipher kun je per keer slechts een beperkt aantal bits versleutelen bijvoorbeeld met RSA-2048 kan het bericht uit maximaal 2048 bits bestaan (minus de padding). Bij ECC wordt de grootte bepaald door het veld van de curve. 
+Hoe wordt dit nu gebruikt? Wanneer je sleutels uitwisselt kan je RSA of EC gebruiken om de symmetrische sleutel te versleutelen om deze uit te wisselen. Een voorbeeld hiervan is Elliptic-curve Diffie–Hellman (ECDH), dit is een 'key agreement protocol' waarbij de symmetrische sleutel over een onveilig medium toch uitgewisseld kan worden. Deze symmetrische sleutel wordt dan gebruikt om het bericht vervolgens te versleutelen.
 
 ## Hashing
 
