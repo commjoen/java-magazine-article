@@ -17,6 +17,6 @@ HMAC
 
 
 2e artikel:
-
+- De dingen vna het te diepe eerste artikel porten naar een nieuw artikel qua do's en don'ts (En kijken hoe groot we dan zijn)
 - hoeveel keer encrypten met dezelfde sleutel AES...
 - AES GCM vs AES-GCM-SIV

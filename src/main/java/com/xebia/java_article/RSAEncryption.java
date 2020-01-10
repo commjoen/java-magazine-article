@@ -34,7 +34,8 @@ public class RSAEncryption {
 
     public static byte[] encrypt(PublicKey publicKey, byte[] message) {
         try {
-            //Note: both PKCS#1v1.5 padding and no padding are insecure
+            //Note: both PKCS#1v1.5 padding and no padding are insecure as you are susceptible to a padding oracle attack. 
+            //We will talk a bit more about this in our second article
             Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             return cipher.doFinal(message);
