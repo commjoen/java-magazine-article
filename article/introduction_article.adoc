@@ -65,7 +65,7 @@ Bij AES-GCM (AES Gallois Counter Mode) zit deze integriteit automatisch ingebakk
 - Plaintext
 - Associated data wordt niet opgenomen in de ciphertext maar wordt wel meegenomen in de integriteitscontrole, een aanvaller kan dit niet maar zo aanpassen.
 
-Tijdens de ontsleuteling van het bericht wordt allereerst gekeken of de integriteit van het bericht klopt. Is er iets aangepast? Dan stopt het cipher. Als de integriteit ok bevonden is, wordt het bericht verder ontcijferd.
+Tijdens de ontsleuteling van het bericht wordt allereerst gekeken of de integriteit van het bericht klopt. Is er iets aangepast? Dan stopt het cipher. Is er niets aangepast? Dan wordt het bericht verder ontcijferd.
 
 Als aanvulling kan associated data worden gebruikt om een bepaalde context aan te geven. Bijvoorbeeld: als authenticated associated data kan je een app-identifier gebruiken zodat data alleen te decrypten is op de app-instance met dat app-id. 
 
@@ -78,6 +78,8 @@ Het grote probleem van symmetrische encryptie is: op welke veilige manier kun je
 ## Asymmetrische encryptie
 
 Bij deze vorm encryptie hebben de verzender (voor nu even Alice) en de ontvanger (noemen we Bob) allebei 2 sleutels: 1 publieke sleutel en een geheime privé sleutel. Deze sleutels vormen een keypair. De publieke sleutel kunnen Alice en Bob met elkaar delen. Als Alice een bericht naar Bob wil sturen gebruikt Alice de publieke sleutel van Bob en versleuteld hiermee het bericht. Vanaf dat moment is Bob de enige die het bericht kan ontcijferen omdat Bob de privé sleutel heeft.
+
+Hoe de sleutel uitwisseling in de praktijk op een veilige manier moet gebeuren is buiten de scope van dit artikel. Je kan je voorstellen dat ook hier van alles mis kan gaan. Stel je voor dat Alice haar publieke sleutel naar Bob wil sturen en een derde partij (voor nu even Eve) het bericht onderschept. Eve geeft dan haar publieke sleutel in plaats van die van Alice aan Bob. Als Bob dan een sleutel wil uitwisselen met Alice, gebruikt hij de publieke sleutel van Eve, die vanaf dan dus met de conversatie kan meeluisteren omdat ze de bijbehorende private sleutel heeft.
 
 Hoe de sleutel uitwisseling in de praktijk op een veilige manier moet gebeuren is buiten de scope van dit artikel. Want ook hier kan van alles misgaan. 
 
@@ -94,7 +96,7 @@ ECC maakt gebuikt van elliptische krommen over eindige velden en discrete logari
 Met een asymmetrisch cipher kun je per keer slechts een beperkt aantal bits versleutelen bijvoorbeeld met RSA-2048 kan het bericht uit maximaal 2048 bits bestaan (minus de padding). Bij ECC wordt de grootte bepaald door het veld van de curve. 
 Hoe wordt dit nu gebruikt? Wanneer je sleutels uitwisselt kan je RSA of EC gebruiken om de symmetrische sleutel te versleutelen om deze uit te wisselen. Een voorbeeld hiervan is Elliptic-curve Diffie–Hellman (ECDH), dit is een 'key agreement protocol' waarbij de symmetrische sleutel over een onveilig medium toch uitgewisseld kan worden. Deze symmetrische sleutel wordt dan gebruikt om het bericht vervolgens te versleutelen.
 
-## Hashing (HVG)
+## Hashing
 
 Stel je voor: je verstuurt een bericht via een onbetrouwbaar medium, hoe kan je dan een indicatie krijgen of deze niet is aangetast onderweg? In andere woorden: hoe krijg je een indicatie van de integriteit van een bericht? In onze Github repository footnote:[https://github.com/nbaars/java-magazine-article/]kan je het voorbeeld `ChangeCipher` vinden. Hierin is te zien hoe je een bericht kan aanpassen als attacker. 
 Wil je de integriteit kunnen controleren? Dan kan dit onder andere door het gebruik van een hashing methode. In feite wordt er over een plaintext met een hashfunctie een hash berekend: `H(Plaintext) = hash`. De plaintext kan oneindig lang zijn, terwijl de hash altijd een vaste lengte heeft. Je voelt hem wel aankomen: als iedere plaintext in de wereld door de hash functie heen tot een hash komt met een vaste lengte, dan heb je dus ergens wel 2 berichten die allebei dezelfde hash hebben. Dit noemen we een collision. Om te voorkomen dat je collisions krijgt, moet je een hash-algoritme kiezen wat een zo hoog mogelijke collision resistance heeft. De SHA (Secure Hash Algorithm) familie is een groep aan hashes die een steeds hogere collision resistance heeft. Op dit moment kunnen we dan ook aanbevelen om SHA-2 (256 of hoger) of SHA-3 (256) te gebruiken.
