@@ -27,7 +27,7 @@ public class AuthenticatedEncryption {
         System.out.println("Encrypted authenticated message is: " + Base64.getEncoder().encodeToString(authenticatedEncryptedMsg));
         System.out.println("Decrypting with authenticated message: " + new String(verifyAndDecryptMessage(secretKey, authenticationKey, authenticatedEncryptedMsg)));
 
-        //Change a byte in the message
+        //Change a byte in the message and see what happens if you then try to decrypt it
         authenticatedEncryptedMsg[17] = (byte) (authenticatedEncryptedMsg[0] - 1);
         System.out.println("Decrypting with authenticated message: " + verifyAndDecryptMessage(secretKey, authenticationKey, authenticatedEncryptedMsg));
     }
@@ -50,9 +50,9 @@ public class AuthenticatedEncryption {
             mac.init(authenticationKey);
             byte[] calculatedAuthentication = mac.doFinal(msg);
 
-            //And compare them
+            //And compare them using a constant equals function otherwise we are susceptible to a timing attack
             return org.bouncycastle.util.Arrays.constantTimeAreEqual(receivedAuthentication, calculatedAuthentication);
-            //using a constant equals function otherwise we are susceptible to a timing attack
+            
 
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             throw new CryptoException("Unable to verify");

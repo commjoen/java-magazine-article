@@ -15,6 +15,7 @@ public class PredicatableIV {
      * Below you will see two tests, 1 where we do not have to deal with padding, the other one is where we
      * have a short message like "yes" so we need to change the IV in the correct place otherwise we end up
      * changing the padding.
+     * This example shows how re-using the same IV can give you trouble.
      */
     public static void main(String[] args) throws Exception {
         test16();

@@ -39,6 +39,9 @@ public class Utils {
         }
     }
 
+    /**
+     * Generate a key for HMAC: note that the key should be at least as long as the hashing output function
+     */
     public static SecretKey generateKeyForHMAC() {
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance("HmacSHA512");
