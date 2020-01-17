@@ -1,33 +1,27 @@
 # Valkuilen en uitdagingen bij Cryptografie van Java
 
+In de vorige editie van het Java magazine, hebben we een introductie in cryptografie gegeven. In dit artikel gaan we verder in op de do's en dont's als het gaat om het gebruik van deze cryptografie in Java. Heb je het vorige artikel gemist of wil je nog even terug naar de basisvoorbeelden? Kijk dan gerust even in onze repository op https://github.com/nbaars/java-magazine-article/ .
+image::images/qr-repo.png[Repo-url,300,200]
+
 ## Symmetrische do's en dont's
-Voor symmetrische ciphers zijn er een aantal do’s en don’ts:
 
-### Tips voor block operation modi:
-Gebruik nooit ECB (Electronic CodeBook): Zoals je kan zien op de afbeelding hieronder van Wikipedia, is een encryptie met ECB (middelste afbeelding) een verschuiving van de bits, maar is de originele structuur nog steeds op te halen en is de content ook te herleiden.
+In ons vorige artikel legde we het een en ander uit over symmetrische cryptografie. Zo zijn we in gegaan op block operation modes, ciphers, Initialization Vectors (IVs), Nonces en padding. Waar moet je in dat geval dan eigenlijk op letten? Laten we gaan kijken.
 
-<INSERT IMAGE HERE OF TUX>
+### Tips voor block operation modi
+
+Laten we maar direct met de belangrijkste aanbeveling starten als het gaat om de block operation modi. Als je AES gebruikt, gebruik dan nooit AES-ECB (Electronic CodeBook): Zoals je kan zien op de afbeelding hieronder van Wikipedia, is een encryptie met ECB (middelste afbeelding) een verschuiving van de bits, maar is de originele structuur nog steeds op te halen en is de content ook te herleiden.
+image::images/aes_ecb_cbc_result.png[Voorbeeld van problemen bij ECB (Bron Wikipedia),300,200]
 Bron: https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation, van links naar rechts: geen encryptie toegepast, ECB encryptie toegepast, CBC of CTR encryptie toegepast.
 
-Gebruik je CBC (Cipher Block Chaining)? Voeg dan ook een HMAC toe: Cipher Block Chaining is gevoelig voor een padding oracle attack, deze attack is gebaseerd op het veranderen van bytes in de padding om uiteindelijk een afleiding van de sleutel te kunnen doen en het bericht te kunnen decrypten. Om dit te voorkomen dien je een HMAC toe te passen op de ciphertext. Wordt de ciphertext dan aangepast, dan zal de HMAC validatie falen. Zorg ervoor dat gebruikt maakt van de combinatie “Encrypt then MAC” Alle andere vormen (“MAC then encrypt”, “MAC and encrypt”) zijn kwetsbaar, controleer altijd eerst de MAC en ga dan pas verder met ontsleuteling van het bericht.
+Kies je voor AES-CBC (Cipher Block Chaining)? Voeg dan ook een HMAC toe: Cipher Block Chaining is gevoelig voor een padding oracle attack, deze attack is gebaseerd op het veranderen van bytes in de padding om uiteindelijk een afleiding van de sleutel te kunnen doen en het bericht te kunnen decrypten. Om dit te voorkomen dien je een HMAC toe te passen op de ciphertext. Wordt de ciphertext dan aangepast, dan zal de HMAC validatie falen. Zorg ervoor dat gebruikt maakt van de combinatie “Encrypt then MAC” Alle andere vormen (“MAC then encrypt”, “MAC and encrypt”) zijn kwetsbaar, controleer altijd eerst de MAC en ga dan pas verder met ontsleuteling van het bericht. 
 
-Gebruik je GCM? Limiteer je aantal keren dat je de sleutel hergebruikt: Als je bij GCM twee keer dezelfde Initialisation Vector (IV) gebruikt, dan kan je in een aantal gevallen de sleutel afleiden uit het bericht. Dat is wel een probleem. Daarom moet je er zeker van zijn dat je altijd verschillende IVs gebruikt. Dit wordt lastiger, omdat de meeste Java implementaties maar 96 bits aan effectieve IV lengte hebben. Op het moment dat je meerdere services hebt die een eigen secure random initialiseren en die vervolgens gebruiken om een random IV te genereren, dan is de kans aanwezig dat deze secure-random periodes overlap hebben op de korte termijn. Daarom is het aan te bevelen om het aantal encryptie operaties met dezelfde key gelimiteerd te houden tot een paar miljoen. Als laatste: Bij GCM is het van belang om ook de `GCMParameterSpec` klasse te gebruiken in plaats van de `IVParameterSpec`: ten slotte heb je anders de integrity check die GCM zou bieden niet verkregen. Hoewel dit niet voor alle security providers geldt: bij BouncyCastle wordt er dan een standaard MAC van 16 bytes gemaakt. Daarnaast kan je met `GCMParameterSpec` associated text opgeven. Dit kan je gebruiken om context te geven aan hetgeen je versleuteld: bijvoorbeeld door user-ID op te nemen als associated text kan je een link maken tussen het subject waar de data over gaat en de ciphertext.
+In alle gevallen: zorg ervoor dat je bij decryptie zo "stil" mogelijk bent in je feedback, zoals ook te zien is in onze voorbeelden op Github: want als je wel meer specifieke decryptiefouten deelt, wordt het veel gemakkelijker voor een aanval om een implementatie aan te vallen als bijvoorbeeld de HMAC mist.
 
-Welke algoritmes zijn ok? Als laatste is het van belang om de juiste ciphers te kiezen: gebruik, in geval van twijfel, alleen AES-128, AES-256, CHACHA-20 in combinatie met de HMAC Poly-1305.
-Randomize IVs: een weggevertje, maar zorg ervoor dat je altijd random IVs gebruikt.
-Roteer sleutels: roteer je sleutels: niet alleen om eventuele zwakheden in implementaties (zoals bij GCM), maar ook omdat je niet zeker weet wanneer de sleutel gecompromitteerd wordt.
-Op mobiel? Beveilig de sleutel! Zorg ervoor dat je de Trusted Execution Environment/Secure Enclave kan gebruiken om de sleutel te beveiligen. Kan dat niet? Ruim dan altijd zelf de sleutel op: dit doe je door de byte-array van de sleutel op te schonen.
+Gebruik je AES-GCM (Gallois Counter-Mode)? Bij GCM is het van belang om ook de `GCMParameterSpec` klasse te gebruiken in plaats van de `IVParameterSpec`: ten slotte heb je anders de integrity check die GCM zou bieden niet verkregen. Hoewel dit niet voor alle security providers geldt: bij BouncyCastle wordt er dan een standaard MAC van 16 bytes gemaakt. Daarnaast kan je met `GCMParameterSpec` associated text opgeven. Dit kan je gebruiken om context te geven aan hetgeen je versleuteld: bijvoorbeeld door user-ID op te nemen als associated text kan je een link maken tussen het subject waar de data over gaat en de ciphertext. 
 
-### Verschil tussen een initialization vector(IV) en nonce
+### Nog even terug naar IVs en Nonces bij AES-GCM 
 
-Er is een belangrijk verschil op te merken tussen een IV en een nonce, een IV moet random zijn en een nonce kan ook
-gebaseerd zijn op een counter. Een nonce in bijvoorbeeld AES GCM kan gewoon een counter zijn, het is daarbij wel belangrijk
-om dit nummer **exact 1 keer** te gebruiken anders is er een aanval mogelijk op de gebruikte sleutel. Het voert te ver om
-in dit artikel hieraan aandacht te besteden, zie footnote:[https://tools.ietf.org/id/draft-irtf-cfrg-gcmsiv-08.html] voor
-meer informatie. In footnote:[CWE-329: http://cwe.mitre.org/data/definitions/329.html] kun je de
-aanbeveling lezen waarom de IV random moet zijn, ook een voorspelbare IV (toegestaan bij een nonce) levert
-problemen op, stel we gebruiken een counter als IV dan is het voor een attacker mogelijk onder de juiste condities om
-het volgende uit te voeren, in het geval van AES CBC is een bericht als volgt versleuteld:
+Er is een belangrijk verschil op te merken tussen een IV en een NONCE (Number used ONCE), een IV moet random zijn en een NONCE kan ook gebaseerd zijn op een counter. Dit wordt extra belangrijk bij AES-GCM. AES-GCM is een voorbeeld van AEAD (Authenticated Encryption with Associated Data), waar een Nonce verplicht is. Deze Nonce kan gewoon een counter zijn, het is daarbij wel belangrijk om dit nummer **exact 1 keer** te gebruiken anders is er een aanval mogelijk op de gebruikte sleutel. Het voert te ver om in dit artikel hieraan aandacht te besteden, zie footnote:[https://tools.ietf.org/id/draft-irtf-cfrg-gcmsiv-08.html] voor meer informatie. In footnote:[CWE-329: http://cwe.mitre.org/data/definitions/329.html] kun je de aanbeveling lezen waarom de IV random moet zijn, ook een voorspelbare IV (toegestaan bij een nonce) levert problemen op, stel we gebruiken een counter als IV dan is het voor een attacker mogelijk onder de juiste condities om het volgende uit te voeren, in het geval van AES CBC is een bericht als volgt versleuteld:
 
 P~alice~ = yes en C~alice~ = E(k, IV~alice~ ⊕ P~alice~) = E(k, IV~alice~ ⊕ yes)
 
@@ -49,22 +43,36 @@ Nu kan Eve dus kijken of C~eve~ gelijk is C~alice~ als dit zo is, weet Eve dat A
 
 Dit voorbeeld is te vinden in onze Github repository footnote:[https://github.com/nbaars/java-magazine-article/].
 
+Werk je toch met AES-GCM en kan je een onvoorspelbaar eenmalig gebruikte NONCE niet garanderen? Probeer dan random IVs met een beperkt gebruik van de sleutel. Je mag namelijk ook die IV niet twee keer gebruiken. Dit wordt lastiger, omdat de meeste Java implementaties maar 96 bits aan effectieve IV lengte hebben. Op het moment dat je meerdere services hebt die een eigen secure random initialiseren en die vervolgens gebruiken om een random IV te genereren, dan is de kans aanwezig dat deze secure-random periodes overlap hebben op de korte termijn. Daarom is het aan te bevelen om het aantal encryptie operaties met dezelfde key gelimiteerd te houden tot een paar miljoen.
+
+### Algemene tips
+
+Welke algoritmes zijn ok? Als laatste is het van belang om de juiste ciphers te kiezen: gebruik, in geval van twijfel, alleen AES-128, AES-256, CHACHA-20 in combinatie met de HMAC Poly-1305.
+Randomize IVs: een weggevertje, maar zorg ervoor dat je altijd random IVs gebruikt.
+Roteer sleutels: roteer je sleutels: niet alleen om eventuele zwakheden in implementaties (zoals bij GCM), maar ook omdat je niet zeker weet wanneer de sleutel gecompromitteerd wordt.
+Op mobiel? Beveilig de sleutel! Zorg ervoor dat je de Trusted Execution Environment/Secure Enclave kan gebruiken om de sleutel te beveiligen. Kan dat niet? Zorg ervoor dat de sleutel alleen tijdelijk op het apparaat is. Ruim hem ook altijd zelf op na gebruik: zero-ize de byte-array van de sleutel.
+
 ## Asymmetrische do's en dont's
-Ga geen grote plaintext blocken encrypten: Asymmetrische cryptografie is niet bedoeld voor grote blokken plaintext. In plaats daarvan: gebruik envelope encryptie. Dan genereer je een symmetrische sleutel die je gebruikt voor het encrypten van de plaintext en je gebruikt asymmetrische cryptografie voor het encrypten van de symmetrische sleutel. Beide stuur je vervolgens op.
+
+Ga geen grote plaintext blocken encrypten: Asymmetrische cryptografie is niet bedoeld voor grote blokken plaintext (meer dan de capaciteit van 1 block van de sleutel). Wil je toch grote blokken plaintext verlseutelen? Gebruik dan het principe van envelope encryptie. Dan genereer je een symmetrische sleutel die je gebruikt voor het encrypten van de plaintext en je gebruikt asymmetrische cryptografie voor het encrypten van de symmetrische sleutel. Beide stuur je vervolgens op.
 Gebruik geen PKCS#1 als padding: PKCS-1 padding is gevoelig voor padding oracle attacks. OAEP is dat veel minder. Moet je alsnog gebruik maken van PKCS-1? Zorg ervoor dat je generieke errors teruggeeft op het moment dat de padding niet klopt. Geef je namelijk specifieke errors terug, dan kan de aanvaller een padding oracle attack uitvoeren.
 RSA? Start met RSA-2048: Gebruik geen RSA-1024. Wil je up to date blijven qua key length? NIST publiceert af en toe daar updates over. Kijk eens op keylength.com om daar snel een overzicht van te krijgen.
 Roteer je sleutel! Net als bij symmetrische encryptie geldt hier hetzelfde: roteer je sleutel met regelmaat (periode is afhankelijk van het risico: hoog risico? Jaarlijks, laag risico? Een jaar of 3?).
 RSA en java: Let op: RSA sleutels zijn gebaseerd op Big Integers: dit betekent dat de sleutel dus eigenlijk altijd in het geheugen blijft vanaf dat hij geïnitialiseerd is. Wil je sleutel lekkage bemoeilijken? Maak dan gebruik van de Trusted Execution Environment/Secure Enclave op mobiel of maak gebruik van libraries zoals LibSodium. 
+Wil je toch graag gebruik maken van elliptische cryptografie? Kijk dan bij de website Safe Curves footnote:[Safe Curves website: https://safecurves.cr.yp.to/] om te zien of de curve daadwerkelijk te gebruiken is.
 
 ## Signature, HMACs: do's & dont's
-Een signature ≠ HMAC: Iedereen met een beetje ervaring merkt al snel dat Signature implementaties een stuk trager zijn dan HMACs. Het is dan ook vaak verleidelijk om een signature te verruilen voor een HMAC. Let wel op dat je dan non-repudiation kwijt bent: indien de verifiërende partij een andere is dan de schrijvende partij, dan zal de verifiërende partij ook ineens berichten kunnen maken bij een HMAC. Dit is niet het geval bij een signature
-.
-Gebruik je signatures met RSA? Maak gebruik van PSS: RSA PSS (Probabilistic Signature Scheme) is een betere vorm van padding om daadwerkelijk de veiligheid van een RSA-gebaseerde signature te versterken.
 
+Een signature ≠ HMAC: Iedereen met een beetje ervaring merkt al snel dat Signature implementaties een stuk trager zijn dan HMACs. Het is dan ook vaak verleidelijk om een signature te verruilen voor een HMAC. Let wel op dat je dan non-repudiation kwijt bent: indien de verifiërende partij een andere is dan de schrijvende partij, dan zal de verifiërende partij ook ineens berichten kunnen maken bij een HMAC. Dit is niet het geval bij een signature.
+Gebruik je signatures met RSA? Maak gebruik van de juiste padding: RSA PSS (Probabilistic Signature Scheme) is een betere vorm van padding om daadwerkelijk de veiligheid van een RSA-gebaseerde signature te versterken.
+
+Gebruik je wel een HMAC? Zorg ervoor dat de sleutel even lang is als de output van je hashing algoritme. Gebruik bijvoorbeeld bij een SHA-256 gebasseerde HMAC een 256 bits lange sleutel.
 
 ## Timing attacks
+
 Indien je met data werkt die een hoog risico met zich meedragen, zorg er dan voor dat de implementatie die je kiest timing-attack-resistant is. Bij een timing attack wordt het verschil in respons tijd gebruikt om iets af te leiden van de correctheid van hetgeen wat verstuurd wordt door de aanvaller: indien een HMAC validatie bij de eerste fout faalt of indien een padding check bij de eerste check verder faalt qua decryptie, dan leert de aanvaller daar meteen van. Daarom is het goed om timing resistant implementaties te gebruiken.
 
 ## Je security provider
-Java maakt gebruik van meerdere security providers voor de daadwerkelijke implementatie van de cryptografische operatie. Zorg ervoor dat de juiste gebruikt wordt. Op Android betekent dat: patch je security provider. Op de back-end betekent dat: maak gebruik van van BouncyCastle (de laatste versie) of van Libsodium en vergeet deze niet in een static block als provider toe te voegen en te initialiseren.
+
+Als laatste: Java maakt gebruik van meerdere security providers voor de daadwerkelijke implementatie van de cryptografische operatie. Zorg ervoor dat de juiste gebruikt wordt. Op Android betekent dat: patch je security provider en definieer niet welke je wil gebruiken, tenzij strict noodzakelijk. Op de back-end betekent dat: maak gebruik van van BouncyCastle (de laatste versie) of van Libsodium en vergeet deze niet in een static block als provider toe te voegen en te initialiseren.
 
