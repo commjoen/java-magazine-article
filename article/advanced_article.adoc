@@ -1,17 +1,18 @@
-# Valkuilen en uitdagingen bij Cryptografie van Java
+# Valkuilen en uitdagingen bij cryptografie in Java
 
-In de vorige editie van het Java magazine, hebben we een introductie in cryptografie gegeven. In dit artikel gaan we verder in op de do's en dont's als het gaat om het gebruik van deze cryptografie in Java. Heb je het vorige artikel gemist of wil je nog even terug naar de basisvoorbeelden? Kijk dan gerust even in onze repository op https://github.com/nbaars/java-magazine-article/ .
+In de vorige editie van het Java magazine, hebben we een introductie in cryptografie gegeven. In dit artikel gaan we verder in op de do's en dont's als het gaat om het gebruik van deze cryptografie in Java. Heb je het vorige artikel gemist of wil je nog even terug naar de basis voorbeelden? Kijk dan gerust even in onze repository op https://github.com/nbaars/java-magazine-article/ .
 image::images/qr-repo.png[Repo-url,300,200]
 
 ## Symmetrische do's en dont's
 
 In ons vorige artikel legde we het een en ander uit over symmetrische cryptografie. Zo zijn we in gegaan op block operation modes, ciphers, Initialization Vectors (IVs), Nonces en padding. Waar moet je in dat geval dan eigenlijk op letten? Laten we gaan kijken.
 
-### Tips voor block operation modi
+### Tips voor block operation modes
 
 Laten we maar direct met de belangrijkste aanbeveling starten als het gaat om de block operation modi. Als je AES gebruikt, gebruik dan nooit AES-ECB (Electronic CodeBook): Zoals je kan zien op de afbeelding hieronder van Wikipedia, is een encryptie met ECB (middelste afbeelding) een verschuiving van de bits, maar is de originele structuur nog steeds op te halen en is de content ook te herleiden.
 image::images/aes_ecb_cbc_result.png[Voorbeeld van problemen bij ECB (Bron Wikipedia),300,200]
 Bron: https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation, van links naar rechts: geen encryptie toegepast, ECB encryptie toegepast, CBC of CTR encryptie toegepast.
+Er is wel een uitzondering: je kan ECB gebruiken als de hoeveelheid te encrypten plaintext past in 1 block van maximaal 128 bits, alleen zijn er maar weinig usecases waarbij dit het geval is. 
 
 Kies je voor AES-CBC (Cipher Block Chaining)? Voeg dan ook een HMAC toe: Cipher Block Chaining is gevoelig voor een padding oracle attack, deze attack is gebaseerd op het veranderen van bytes in de padding om uiteindelijk een afleiding van de sleutel te kunnen doen en het bericht te kunnen decrypten. Om dit te voorkomen dien je een HMAC toe te passen op de ciphertext. Wordt de ciphertext dan aangepast, dan zal de HMAC validatie falen. Zorg ervoor dat gebruikt maakt van de combinatie “Encrypt then MAC” Alle andere vormen (“MAC then encrypt”, “MAC and encrypt”) zijn kwetsbaar, controleer altijd eerst de MAC en ga dan pas verder met ontsleuteling van het bericht. 
 
@@ -43,7 +44,7 @@ Nu kan Eve dus kijken of C~eve~ gelijk is C~alice~ als dit zo is, weet Eve dat A
 
 Dit voorbeeld is te vinden in onze Github repository footnote:[https://github.com/nbaars/java-magazine-article/].
 
-Werk je toch met AES-GCM en kan je een onvoorspelbaar eenmalig gebruikte NONCE niet garanderen? Probeer dan random IVs met een beperkt gebruik van de sleutel. Je mag namelijk ook die IV niet twee keer gebruiken. Dit wordt lastiger, omdat de meeste Java implementaties maar 96 bits aan effectieve IV lengte hebben. Op het moment dat je meerdere services hebt die een eigen secure random initialiseren en die vervolgens gebruiken om een random IV te genereren, dan is de kans aanwezig dat deze secure-random periodes overlap hebben op de korte termijn. Daarom is het aan te bevelen om het aantal encryptie operaties met dezelfde key gelimiteerd te houden tot een paar miljoen.
+Werk je toch met AES-GCM en kan je een onvoorspelbaar eenmalig gebruikte NONCE niet garanderen? Probeer dan random IVs met een beperkt gebruik van de sleutel. Je mag namelijk ook die IV niet twee keer gebruiken. Dit wordt lastiger, omdat de meeste Java implementaties maar 96 bits aan effectieve IV lengte hebben. Dit betekent, volgens footnote:[NIST Special Publication: https://dx.doi.org/10.6028/NIST.SP.800-38D] dat je maximaal 2^32 berichten mag encrypten met dezelfde sleutel. Dit kan nog eens een stuk minder worden door het volgende verschijnsel. Op het moment dat je meerdere services hebt die een eigen secure random initialiseren en die vervolgens gebruiken om een random IV te genereren, dan is de kans aanwezig dat deze secure-random periodes overlap hebben op de korte termijn. Daarom is het aan te bevelen om het aantal encryptie operaties met dezelfde key meer te limiteren.
 
 ### Algemene tips
 
@@ -57,9 +58,10 @@ Op mobiel? Beveilig de sleutel! Zorg ervoor dat je de Trusted Execution Environm
 Ga geen grote plaintext blocken encrypten: Asymmetrische cryptografie is niet bedoeld voor grote blokken plaintext (meer dan de capaciteit van 1 block van de sleutel). Wil je toch grote blokken plaintext verlseutelen? Gebruik dan het principe van envelope encryptie. Dan genereer je een symmetrische sleutel die je gebruikt voor het encrypten van de plaintext en je gebruikt asymmetrische cryptografie voor het encrypten van de symmetrische sleutel. Beide stuur je vervolgens op.
 Gebruik geen PKCS#1 als padding: PKCS-1 padding is gevoelig voor padding oracle attacks. OAEP is dat veel minder. Moet je alsnog gebruik maken van PKCS-1? Zorg ervoor dat je generieke errors teruggeeft op het moment dat de padding niet klopt. Geef je namelijk specifieke errors terug, dan kan de aanvaller een padding oracle attack uitvoeren.
 RSA? Start met RSA-2048: Gebruik geen RSA-1024. Wil je up to date blijven qua key length? NIST publiceert af en toe daar updates over. Kijk eens op keylength.com om daar snel een overzicht van te krijgen.
+Let op: bij RSA is het heel gewoon om ECB als mode te gebruiken. Ten slotte kan je bij RSA-2048 ook 2048 bits in het block encrypten.
 Roteer je sleutel! Net als bij symmetrische encryptie geldt hier hetzelfde: roteer je sleutel met regelmaat (periode is afhankelijk van het risico: hoog risico? Jaarlijks, laag risico? Een jaar of 3?).
 RSA en java: Let op: RSA sleutels zijn gebaseerd op Big Integers: dit betekent dat de sleutel dus eigenlijk altijd in het geheugen blijft vanaf dat hij geïnitialiseerd is. Wil je sleutel lekkage bemoeilijken? Maak dan gebruik van de Trusted Execution Environment/Secure Enclave op mobiel of maak gebruik van libraries zoals LibSodium. 
-Wil je toch graag gebruik maken van elliptische cryptografie? Kijk dan bij de website Safe Curves footnote:[Safe Curves website: https://safecurves.cr.yp.to/] om te zien of de curve daadwerkelijk te gebruiken is.
+Wil je toch graag gebruik maken van elliptische cryptografie? Kijk dan bij de website Safe Curves footnote:[Safe Curves website: https://safecurves.cr.yp.to/] om te zien of de curve daadwerkelijk te gebruiken is. 
 
 ## Signature, HMACs: do's & dont's
 
@@ -74,5 +76,5 @@ Indien je met data werkt die een hoog risico met zich meedragen, zorg er dan voo
 
 ## Je security provider
 
-Als laatste: Java maakt gebruik van meerdere security providers voor de daadwerkelijke implementatie van de cryptografische operatie. Zorg ervoor dat de juiste gebruikt wordt. Op Android betekent dat: patch je security provider en definieer niet welke je wil gebruiken, tenzij strict noodzakelijk. Op de back-end betekent dat: maak gebruik van van BouncyCastle (de laatste versie) of van Libsodium en vergeet deze niet in een static block als provider toe te voegen en te initialiseren.
+Als laatste: Java maakt gebruik van meerdere security providers voor de daadwerkelijke implementatie van de cryptografische operatie. Zorg ervoor dat de juiste gebruikt wordt. Op Android betekent dat: patch je security provider en definieer niet welke je wil gebruiken, tenzij strict noodzakelijk. Op de back-end betekent dat: maak gebruik van van BouncyCastle (de laatste versie) of van Libsodium en vergeet deze niet in een static block als provider toe te voegen op de jusite positie en te initialiseren. Zie ook de voorbeelden onze Github repository footnote:[https://github.com/nbaars/java-magazine-article/]. 
 
