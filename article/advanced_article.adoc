@@ -61,7 +61,11 @@ RSA? Start met RSA-2048: Gebruik geen RSA-1024. Wil je up to date blijven qua ke
 Let op: bij RSA is het heel gewoon om ECB als mode te gebruiken. Ten slotte kan je bij RSA-2048 ook 2048 bits in het block encrypten.
 Roteer je sleutel! Net als bij symmetrische encryptie geldt hier hetzelfde: roteer je sleutel met regelmaat (periode is afhankelijk van het risico: hoog risico? Jaarlijks, laag risico? Een jaar of 3?).
 RSA en java: Let op: RSA sleutels zijn gebaseerd op Big Integers: dit betekent dat de sleutel dus eigenlijk altijd in het geheugen blijft vanaf dat hij geïnitialiseerd is. Wil je sleutel lekkage bemoeilijken? Maak dan gebruik van de Trusted Execution Environment/Secure Enclave op mobiel of maak gebruik van libraries zoals LibSodium. 
-Wil je toch graag gebruik maken van elliptische cryptografie? Kijk dan bij de website Safe Curves footnote:[Safe Curves website: https://safecurves.cr.yp.to/] om te zien of de curve daadwerkelijk te gebruiken is. 
+Wil je toch graag gebruik maken van elliptische cryptografie? Kijk dan bij de website Safe Curves footnote:[Safe Curves website: https://safecurves.cr.yp.to/] om te zien of de curve daadwerkelijk te gebruiken is.
+
+## HMAC
+
+Bij het gebruik van een HMAC is het van belang om gebruik te maken van de juiste sleutel lengte. Doordat een hash functie snel te berekenen is, is een brute-force attack een reëel gevaar waar je rekening mee moeten houden. In footnote:[https://tools.ietf.org/html/rfc2104#section-3] is te lezen dat de lengte van de sleutel minimaal gelijk moet zijn aan de lengte van het hash output lengte. In de praktijk houden weining libraries rekening met deze eis, bijvoorbeeld een willekeurige JWT library (alg = H256) gooit geen exceptie als de lengte onder de grens is.
 
 ## Signature, HMACs: do's & dont's
 
