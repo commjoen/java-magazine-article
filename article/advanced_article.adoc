@@ -65,7 +65,7 @@ Wil je toch graag gebruik maken van elliptische cryptografie? Kijk dan bij de we
 
 ## HMAC
 
-Bij het gebruik van een HMAC is het van belang om gebruik te maken van de juiste sleutel lengte. Doordat een hash functie snel te berekenen is, is een brute-force attack een reëel gevaar waar je rekening mee moeten houden. In footnote:[https://tools.ietf.org/html/rfc2104#section-3] is te lezen dat de lengte van de sleutel minimaal gelijk moet zijn aan de lengte van het hash output lengte. In de praktijk houden weining libraries rekening met deze eis, bijvoorbeeld een willekeurige JWT library (alg = H256) gooit geen exceptie als de lengte onder de grens is. Een voorbeeld van zo'n kwetsbaar is te vinden in WebGoat footnote:[https://webgoat.github.io/WebGoat/] in het onderdeel JWT tokens.
+Bij het gebruik van een HMAC is het van belang om gebruik te maken van de juiste sleutel lengte. Doordat een hash functie snel te berekenen is, is een brute-force attack een reëel gevaar waar je rekening mee moeten houden. In footnote:[https://tools.ietf.org/html/rfc2104#section-3] is te lezen dat de lengte van de sleutel minimaal gelijk moet zijn aan de lengte van het hash output lengte. In de praktijk houden weining libraries rekening met deze eis, bijvoorbeeld een willekeurige JWT library (alg = H256) gooit geen exceptie als de lengte onder de grens is. Een voorbeeld van een dergelijke kwetsbaarheid is te vinden in WebGoat footnote:[https://webgoat.github.io/WebGoat/] in het onderdeel JWT tokens.
 
 ## Signature, HMACs: do's & dont's
 
@@ -81,4 +81,3 @@ Indien je met data werkt die een hoog risico met zich meedragen, zorg er dan voo
 ## Je security provider
 
 Als laatste: Java maakt gebruik van meerdere security providers voor de daadwerkelijke implementatie van de cryptografische operatie. Zorg ervoor dat de juiste gebruikt wordt. Op Android betekent dat: patch je security provider en definieer niet welke je wil gebruiken, tenzij strict noodzakelijk. Op de back-end betekent dat: maak gebruik van van BouncyCastle vergeet deze niet in een static block als provider toe te voegen (`Security.addProvider(..) ` ). Let wel op: als je meerdere security providers op je classpath hebt welke dezelfde cipher/signature/HMAC supporten, moet je wel de provider opgeven, anders kan het wel eens door een andere provider uitgevoerd worden die ook support heeft voor de desbetreffende configuratie en op een lagere positie bij de provider list staat. Zie ook de voorbeelden onze Github repository footnote:[https://github.com/nbaars/java-magazine-article/].
-
