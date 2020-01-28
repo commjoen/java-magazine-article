@@ -65,7 +65,7 @@ Wil je toch graag gebruik maken van elliptische cryptografie? Kijk dan bij de we
 
 ## HMAC
 
-Bij het gebruik van een HMAC is het van belang om gebruik te maken van de juiste sleutel lengte. Doordat een hash functie snel te berekenen is, is een brute-force attack een reëel gevaar waar je rekening mee moeten houden. In footnote:[https://tools.ietf.org/html/rfc2104#section-3] is te lezen dat de lengte van de sleutel minimaal gelijk moet zijn aan de lengte van het hash output lengte. In de praktijk houden weining libraries rekening met deze eis, bijvoorbeeld een willekeurige JWT library (alg = H256) gooit geen exceptie als de lengte onder de grens is.
+Bij het gebruik van een HMAC is het van belang om gebruik te maken van de juiste sleutel lengte. Doordat een hash functie snel te berekenen is, is een brute-force attack een reëel gevaar waar je rekening mee moeten houden. In footnote:[https://tools.ietf.org/html/rfc2104#section-3] is te lezen dat de lengte van de sleutel minimaal gelijk moet zijn aan de lengte van het hash output lengte. In de praktijk houden weining libraries rekening met deze eis, bijvoorbeeld een willekeurige JWT library (alg = H256) gooit geen exceptie als de lengte onder de grens is. Een voorbeeld van zo'n kwetsbaar is te vinden in WebGoat footnote:[https://webgoat.github.io/WebGoat/] in het onderdeel JWT tokens.
 
 ## Signature, HMACs: do's & dont's
 
