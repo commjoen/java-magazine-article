@@ -15,13 +15,23 @@ jobs:
         run: docker run -v ${PWD}/article:/documents java-magazine 'asciidoctor -r asciidoctor-pdf -b pdf introduction_article.adoc; for f in *.adoc; do asciidoctor --backend docbook --out-file - ${f} | pandoc --from docbook --to docx --output ${f%.adoc}.docx; done'
       - name: List files
         run: ls -alrt ${PWD}/article
-      - name: Upload PDF
+      - name: Upload introduction PDF
         uses: actions/upload-artifact@v1
         with:
-          name: PDF
-          path: article/*.pdf
-      - name: Upload Word
+          name: introduction PDF
+          path: article/introduction_article.pdf
+      - name: Upload advanced PDF
+        uses: actions/upload-artifact@v1
+        with:
+          name: advanced PDF
+          path: article/advanced_article.pdf
+      - name: Upload introduction Word
+        uses: actions/upload-artifact@v1
+        with:
+          name: introduction Word
+          path: article/introduction_article.docx
+      - name: advanced Word
         uses: actions/upload-artifact@v1
         with:
           name: Word
-          path: article/*.docx
+          path: article/advanced_article.docx
