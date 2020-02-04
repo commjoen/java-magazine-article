@@ -34,6 +34,6 @@ public class ChangeCipher {
         //This requires knowledge of the system and messages, but often the start of a message is static which
         //can lead to these kind of attacks.
 
-        //Solution: Add authentication to the ciphertext!!
+        //Solution: Add authentication to the cipher text!!
     }
 }

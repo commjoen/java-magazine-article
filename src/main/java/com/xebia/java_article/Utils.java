@@ -9,8 +9,8 @@ import java.security.SecureRandom;
 
 public class Utils {
 
-    public static byte[] generateIV() {
-        byte[] ivBytes = new byte[16];
+    public static byte[] generateIV(int length) {
+        byte[] ivBytes = new byte[length];
         new SecureRandom().nextBytes(ivBytes);
         return ivBytes;
     }

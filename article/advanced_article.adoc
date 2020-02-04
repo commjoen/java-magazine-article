@@ -1,20 +1,24 @@
 # Valkuilen en uitdagingen bij cryptografie in Java
 
 In de vorige editie van het Java magazine, hebben we een introductie in cryptografie gegeven. In dit artikel gaan we verder in op de do's en dont's als het gaat om het gebruik van deze cryptografie in Java. Heb je het vorige artikel gemist of wil je nog even terug naar de basis voorbeelden? Kijk dan gerust even in onze repository op https://github.com/nbaars/java-magazine-article/ .
-image::images/qr-repo.png[Repo-url,300,200]
+
+image::images/qr-repo.png[Repo-url,100,50]
 
 ## Symmetrische do's en dont's
 
-In ons vorige artikel legde we het een en ander uit over symmetrische cryptografie. Zo zijn we in gegaan op block operation modes, ciphers, Initialization Vectors (IVs), Nonces en padding. Waar moet je in dat geval dan eigenlijk op letten? Laten we gaan kijken.
+In ons vorige artikel legde we het een en ander uit over symmetrische cryptografie. Zo zijn we in gegaan op block operation modes, ciphers, initialization vectors (IVs), nonces en padding. Waar moet je in dat geval dan eigenlijk op letten? Laten we gaan kijken.
 
 ### Tips voor block operation modes
 
 Laten we maar direct met de belangrijkste aanbeveling starten als het gaat om de block operation modi. Als je AES gebruikt, gebruik dan nooit AES-ECB (Electronic CodeBook): Zoals je kan zien op de afbeelding hieronder van Wikipedia, is een encryptie met ECB (middelste afbeelding) een verschuiving van de bits, maar is de originele structuur nog steeds op te halen en is de content ook te herleiden.
-image::images/aes_ecb_cbc_result.png[Voorbeeld van problemen bij ECB (Bron Wikipedia),300,200]
-Bron: https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation, van links naar rechts: geen encryptie toegepast, ECB encryptie toegepast, CBC of CTR encryptie toegepast.
-Er is wel een uitzondering: je kan ECB gebruiken als de hoeveelheid te encrypten plaintext past in 1 block van maximaal 128 bits, alleen zijn er maar weinig usecases waarbij dit het geval is. 
 
-Kies je voor AES-CBC (Cipher Block Chaining)? Voeg dan ook een HMAC toe: Cipher Block Chaining is gevoelig voor een padding oracle attack, deze attack is gebaseerd op het veranderen van bytes in de padding om uiteindelijk een afleiding van de sleutel te kunnen doen en het bericht te kunnen decrypten. Om dit te voorkomen dien je een HMAC toe te passen op de ciphertext. Wordt de ciphertext dan aangepast, dan zal de HMAC validatie falen. Zorg ervoor dat gebruikt maakt van de combinatie “Encrypt then MAC” Alle andere vormen (“MAC then encrypt”, “MAC and encrypt”) zijn kwetsbaar, controleer altijd eerst de MAC en ga dan pas verder met ontsleuteling van het bericht. 
+.Voorbeeld van problemen bij ECB (https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation)
+image::images/aes_ecb_cbc_result.png[Voorbeeld van problemen bij ECB (Bron Wikipedia),300,200]
+
+van links naar rechts: geen encryptie toegepast, ECB encryptie toegepast, CBC of CTR encryptie toegepast.
+Er is wel een uitzondering: je kan ECB gebruiken als het te versleutelen bericht past in 1 blok van maximaal 128 bits, alleen zijn er maar weinig gevallen te bedenken waarbij dit het geval is.
+
+Kies je voor AES-CBC (Cipher Block Chaining)? Voeg dan ook een HMAC toe: CBC is gevoelig voor een padding oracle attack, deze attack is gebaseerd op het veranderen van bytes in de padding om uiteindelijk een afleiding van de sleutel te kunnen doen en het bericht te kunnen decrypten. Om dit te voorkomen dien je een HMAC toe te passen op de ciphertext. Wordt de ciphertext dan aangepast, dan zal de HMAC validatie falen. Zorg ervoor dat gebruikt maakt van de combinatie “Encrypt then MAC” Alle andere vormen (“MAC then encrypt”, “MAC and encrypt”) zijn kwetsbaar, controleer altijd eerst de MAC en ga dan pas verder met ontsleuteling van het bericht.
 
 In alle gevallen: zorg ervoor dat je bij decryptie zo "stil" mogelijk bent in je feedback, zoals ook te zien is in onze voorbeelden op Github: want als je wel meer specifieke decryptiefouten deelt, wordt het veel gemakkelijker voor een aanval om een implementatie aan te vallen als bijvoorbeeld de HMAC mist.
 
