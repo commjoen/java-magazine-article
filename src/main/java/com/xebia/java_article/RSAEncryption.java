@@ -1,7 +1,5 @@
 package com.xebia.java_article;
 
-import org.bouncycastle.crypto.util.PublicKeyFactory;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -40,7 +38,6 @@ public class RSAEncryption {
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             return cipher.doFinal(message);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
             throw new CryptoException("Unable to encrypt");
         }
     }
@@ -51,7 +48,6 @@ public class RSAEncryption {
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             return cipher.doFinal(message);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
             throw new CryptoException("Unable to decrypt");
         }
     }
