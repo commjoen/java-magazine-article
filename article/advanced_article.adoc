@@ -6,7 +6,7 @@ image::images/qr-repo.png[Repo-url,100,50]
 
 ## Symmetrische do's en dont's
 
-In ons vorige artikel legde we het een en ander uit over symmetrische cryptografie. Zo zijn we in gegaan op block operation modes, ciphers, initialization vectors (IVs), nonces en padding. Waar moet je in dat geval dan eigenlijk op letten? Laten we gaan kijken.
+In ons vorige artikel legde we het een en ander uit over symmetrische cryptografie. Zo zijn we in gegaan op block operation modes, ciphers, Initialization Vectors (IVs), Nonces en padding. Waar moet je in dat geval dan eigenlijk op letten? Laten we gaan kijken.
 
 ### Tips voor block operation modes
 
