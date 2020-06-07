@@ -32,7 +32,7 @@ public class AuthenticatedEncryption {
         System.out.println("Decrypting with authenticated message: " + verifyAndDecryptMessage(secretKey, authenticationKey, authenticatedEncryptedMsg));
     }
 
-    private static byte[] addHMAC(SecretKey authenticationKey, byte[] msg) {
+    public static byte[] addHMAC(SecretKey authenticationKey, byte[] msg) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(authenticationKey);
