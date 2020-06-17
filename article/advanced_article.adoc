@@ -1,7 +1,8 @@
 # Valkuilen en uitdagingen bij cryptografie in Java
 
 In de vorige editie van het Java magazine, hebben we een introductie in cryptografie gegeven. In dit artikel gaan we verder in op de do's en dont's als het gaat om het gebruik van deze cryptografie in Java. Heb je het vorige artikel gemist of wil je nog even terug naar de basis voorbeelden? Kijk dan gerust even in onze repository op https://github.com/nbaars/java-magazine-article/ .
-image::images/qr-repo.png[Repo-url,300,200]
+
+image::images/qr-repo.png[Repo-url,100,50]
 
 ## Symmetrische do's en dont's
 
@@ -10,37 +11,48 @@ In ons vorige artikel legde we het een en ander uit over symmetrische cryptograf
 ### Tips voor block operation modes
 
 Laten we maar direct met de belangrijkste aanbeveling starten als het gaat om de block operation modi. Als je AES gebruikt, gebruik dan nooit AES-ECB (Electronic CodeBook): Zoals je kan zien op de afbeelding hieronder van Wikipedia, is een encryptie met ECB (middelste afbeelding) een verschuiving van de bits, maar is de originele structuur nog steeds op te halen en is de content ook te herleiden.
+
+.Voorbeeld van problemen bij ECB (https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation)
 image::images/aes_ecb_cbc_result.png[Voorbeeld van problemen bij ECB (Bron Wikipedia),300,200]
-Bron: https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation, van links naar rechts: geen encryptie toegepast, ECB encryptie toegepast, CBC of CTR encryptie toegepast.
-Er is wel een uitzondering: je kan ECB gebruiken als de hoeveelheid te encrypten plaintext past in 1 block van maximaal 128 bits, alleen zijn er maar weinig usecases waarbij dit het geval is. 
 
-Kies je voor AES-CBC (Cipher Block Chaining)? Voeg dan ook een HMAC toe: Cipher Block Chaining is gevoelig voor een padding oracle attack, deze attack is gebaseerd op het veranderen van bytes in de padding om uiteindelijk een afleiding van de sleutel te kunnen doen en het bericht te kunnen decrypten. Om dit te voorkomen dien je een HMAC toe te passen op de ciphertext. Wordt de ciphertext dan aangepast, dan zal de HMAC validatie falen. Zorg ervoor dat gebruikt maakt van de combinatie “Encrypt then MAC” Alle andere vormen (“MAC then encrypt”, “MAC and encrypt”) zijn kwetsbaar, controleer altijd eerst de MAC en ga dan pas verder met ontsleuteling van het bericht. 
+van links naar rechts: geen encryptie toegepast, ECB encryptie toegepast, CBC of CTR encryptie toegepast.
+Er is wel een uitzondering: je kan ECB gebruiken als het te versleutelen bericht past in 1 blok van maximaal 128 bits, alleen zijn er maar weinig gevallen te bedenken waarbij dit het geval is.
 
-In alle gevallen: zorg ervoor dat je bij decryptie zo "stil" mogelijk bent in je feedback, zoals ook te zien is in onze voorbeelden op Github: want als je wel meer specifieke decryptiefouten deelt, wordt het veel gemakkelijker voor een aanval om een implementatie aan te vallen als bijvoorbeeld de HMAC mist.
+Kies je voor AES-CBC (Cipher Block Chaining)? Voeg dan ook een HMAC toe: CBC is gevoelig voor een padding oracle attack, deze attack is gebaseerd op het veranderen van bytes in de padding om uiteindelijk een afleiding van de sleutel te kunnen doen en het bericht te kunnen decrypten. Om dit te voorkomen dien je een HMAC toe te passen op de ciphertext. Wordt de ciphertext dan aangepast, dan zal de HMAC validatie falen. Zorg ervoor dat gebruikt maakt van de combinatie “Encrypt then MAC” Alle andere vormen (“MAC then encrypt”, “MAC and encrypt”) zijn kwetsbaar, controleer altijd eerst de MAC en ga dan pas verder met ontsleuteling van het bericht.
+
+In alle gevallen: zorg ervoor dat je bij decryptie zo "stil" mogelijk bent in je feedback, zoals ook te zien is in onze voorbeelden op Github: want als je wel meer specifieke decryptie fouten deelt, wordt het veel gemakkelijker voor een aanval om een implementatie aan te vallen als bijvoorbeeld de HMAC mist.
 
 Gebruik je AES-GCM (Gallois Counter-Mode)? Bij GCM is het van belang om ook de `GCMParameterSpec` klasse te gebruiken in plaats van de `IVParameterSpec`: ten slotte heb je anders de integrity check die GCM zou bieden niet verkregen. Hoewel dit niet voor alle security providers geldt: bij BouncyCastle wordt er dan een standaard MAC van 16 bytes gemaakt. Daarnaast kan je met `GCMParameterSpec` associated text opgeven. Dit kan je gebruiken om context te geven aan hetgeen je versleuteld: bijvoorbeeld door user-ID op te nemen als associated text kan je een link maken tussen het subject waar de data over gaat en de ciphertext. 
 
-### Nog even terug naar IVs en Nonces bij AES-GCM 
+### Nog even terug naar IVs en Nonces bij AES
 
-Er is een belangrijk verschil op te merken tussen een IV en een NONCE (Number used ONCE), een IV moet random zijn en een NONCE kan ook gebaseerd zijn op een counter. Dit wordt extra belangrijk bij AES-GCM. AES-GCM is een voorbeeld van AEAD (Authenticated Encryption with Associated Data), waar een Nonce verplicht is. Deze Nonce kan gewoon een counter zijn, het is daarbij wel belangrijk om dit nummer **exact 1 keer** te gebruiken anders is er een aanval mogelijk op de gebruikte sleutel. Het voert te ver om in dit artikel hieraan aandacht te besteden, zie footnote:[https://tools.ietf.org/id/draft-irtf-cfrg-gcmsiv-08.html] voor meer informatie. In footnote:[CWE-329: http://cwe.mitre.org/data/definitions/329.html] kun je de aanbeveling lezen waarom de IV random moet zijn, ook een voorspelbare IV (toegestaan bij een nonce) levert problemen op, stel we gebruiken een counter als IV dan is het voor een attacker mogelijk onder de juiste condities om het volgende uit te voeren, in het geval van AES CBC is een bericht als volgt versleuteld:
+Er is een belangrijk verschil op te merken tussen een IV en een nonce (number used ONCE), een IV moet random zijn en een NONCE kan ook gebaseerd zijn op een counter. Dit wordt extra belangrijk bij AES-GCM. AES-GCM is een voorbeeld van AEAD (Authenticated Encryption with Associated Data), waar een Nonce verplicht is. Deze Nonce kan gewoon een counter zijn, het is daarbij wel belangrijk om dit nummer **exact 1 keer** te gebruiken anders is er een aanval op de gebruikte sleutel. Het voert te ver om in dit artikel hieraan aandacht te besteden, zie footnote:[https://tools.ietf.org/id/draft-irtf-cfrg-gcmsiv-08.html] voor meer informatie.
 
-P~alice~ = yes en C~alice~ = E(k, IV~alice~ ⊕ P~alice~) = E(k, IV~alice~ ⊕ yes)
+In footnote:[CWE-329: http://cwe.mitre.org/data/definitions/329.html] kun je de aanbeveling lezen waarom de IV random moet zijn, ook een voorspelbare IV (toegestaan bij een nonce) levert problemen op. Laten we kijken naar AES CBC waarbij gebruik wordt gemaakt van een counter als IV.  Stel Mallory krijgt van Alice de uitdaging om de inhoud van het bericht te raden, stel een veld heeft een vast aantal waarden: "ongehuwd, gehuwd, samenwonend". Mallory heeft natuurlijk een kans van 1 op 3 om het juist te raden, maar laten we eens kijken of Mallory dit altijd kan winnen:
 
-stel Eve gebruikt het volgende bericht:
+In AES CBC is encryptie als volgt gedefinieerd:
 
-P~eve~ = IV~eve~ ⊕ IV~alice~ ⊕ yes
+[quote, https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation]
+____
+C~i~ = E(key, P~i~ ⊕ C~i-1~) +
+C~0~ = IV
+____
+
+In ons geval: C~alice~ = E(key, P~alice~ ⊕ IV~alice~) = E(key, getrouwd ⊕ IV~alice~)
+
+De taak aan Mallory is nu: gegeven het versleutelde bericht van Alice(C~alice~) kan Mallory achterhalen dat Alice de waarde "getrouwd" heeft versleuteld met 100% zekerheid? Dat kan, Mallory heeft kennis van de IV gebruikt door Alice, Mallory weet ook de volgende IV(IV~mallory~) dus als Mallory het volgende bericht maakt:
+
+P~mallory~ = getrouwd ⊕ IV~mallory~ ⊕ IV~alice~
 
 Als we dit versleutelen krijgen we:
 
-C~eve~ = E(k, IV~eve~ ⊕ P~eve~) = E(k, IV~eve~ ⊕ (IV~eve~ ⊕ IV~alice~ ⊕ yes))
+C~mallory~ = E(key, P~mallory~ ⊕ IV~mallory~) = E(key, (getrouwd ⊕ IV~mallory~ ⊕ IV~alice~) ⊕ IV~mallory~)
 
-dit levert:
+IV~mallory~ ⊕ IV~mallory~ kunnen we tegen elkaar wegstrepen dus:
 
-IV~eve~ ⊕ IV~eve~ kunnen we tegen elkaar wegstrepen dus:
+C~mallory~ = E(key, getrouwd ⊕ IV~alice~)
 
-C~eve~ = E(k, IV~alice~ ⊕ "yes")
-
-Nu kan Eve dus kijken of C~eve~ gelijk is C~alice~ als dit zo is, weet Eve dat Alice de waarde "yes" heeft gebruikt.
+Nu kan Mallory dus kijken of C~mallory~ gelijk is C~alice~ als dit zo is, weet Mallory dat Alice de waarde "getrouwd" heeft gebruikt.
 
 Dit voorbeeld is te vinden in onze Github repository footnote:[https://github.com/nbaars/java-magazine-article/].
 

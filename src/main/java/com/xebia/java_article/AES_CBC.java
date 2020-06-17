@@ -27,7 +27,7 @@ public class AES_CBC {
     public static byte[] encrypt(SecretKey secretKey, byte[] message) {
         try {
             //Generate the IV yourself, as Cipher.getIV() might return a non random one it all depends on the underlying security provider
-            byte[] iv = generateIV();
+            byte[] iv = generateIV(16);
 
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(iv));

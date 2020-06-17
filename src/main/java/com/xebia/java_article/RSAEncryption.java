@@ -27,7 +27,7 @@ public class RSAEncryption {
 
         msg = new byte[191]; //too much data
         new SecureRandom().nextBytes(msg);
-        encrypt(keyPair.getPublic(), msg);
+        encrypt(keyPair.getPublic(), msg); // FAILS!!
     }
 
     public static byte[] encrypt(PublicKey publicKey, byte[] message) {
