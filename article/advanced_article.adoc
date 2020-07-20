@@ -67,7 +67,7 @@ Op mobiel? Beveilig de sleutel! Zorg ervoor dat je de Trusted Execution Environm
 
 ## Asymmetrische encryptie: do's en dont's
 
-Ga geen grote plaintext blocken encrypten: Asymmetrische cryptografie is niet bedoeld voor grote blokken plaintext (meer dan de capaciteit van 1 block van de sleutel). Wil je toch grote blokken plaintext verlseutelen? Gebruik dan het principe van envelope encryptie. Dan genereer je een symmetrische sleutel die je gebruikt voor het encrypten van de plaintext en je gebruikt asymmetrische cryptografie voor het encrypten van de symmetrische sleutel. Beide stuur je vervolgens op.
+Ga geen grote plaintext blocken encrypten: Asymmetrische cryptografie is niet bedoeld voor grote blokken plaintext (meer dan de capaciteit van 1 block van de sleutel). Wil je toch grote blokken plaintext versleutelen? Gebruik dan het principe van envelope encryptie. Dan genereer je een symmetrische sleutel die je gebruikt voor het encrypten van de plaintext en je gebruikt asymmetrische cryptografie voor het encrypten van de symmetrische sleutel. Beide stuur je vervolgens op.
 Gebruik geen PKCS#1 als padding: PKCS-1 padding is gevoelig voor padding oracle attacks. OAEP is dat veel minder. Moet je alsnog gebruik maken van PKCS-1? Zorg ervoor dat je generieke errors teruggeeft op het moment dat de padding niet klopt. Geef je namelijk specifieke errors terug, dan kan de aanvaller een padding oracle attack uitvoeren.
 RSA? Start met RSA-2048: Gebruik geen RSA-1024. Wil je up to date blijven qua key length? NIST publiceert af en toe daar updates over. Kijk eens op keylength.com om daar snel een overzicht van te krijgen.
 Let op: bij RSA is het heel gewoon om ECB als mode te gebruiken. Ten slotte kan je bij RSA-2048 ook 2048 bits in het block encrypten.
@@ -84,7 +84,7 @@ Bij het gebruik van een HMAC is het van belang om gebruik te maken van de juiste
 Een signature ≠ HMAC: Iedereen met een beetje ervaring merkt al snel dat signature implementaties een stuk trager zijn dan HMACs. Het is dan ook vaak verleidelijk om een signature te verruilen voor een HMAC. Let wel op dat je dan non-repudiation kwijt bent: indien de verifiërende partij een andere is dan de schrijvende partij, dan zal de verifiërende partij ook ineens berichten kunnen maken bij een HMAC. Dit is niet het geval bij een signature.
 Gebruik je signatures met RSA? Maak gebruik van de juiste padding: RSA PSS (Probabilistic Signature Scheme) is een betere vorm van padding om daadwerkelijk de veiligheid van een RSA-gebaseerde signature te versterken.
 
-Gebruik je wel een HMAC? Zorg ervoor dat de sleutel even lang is als de output van je hashing algoritme. Gebruik bijvoorbeeld bij een SHA-256 gebasseerde HMAC een 256 bits lange sleutel.
+Gebruik je wel een HMAC? Zorg ervoor dat de sleutel even lang is als de output van je hashing algoritme. Gebruik bijvoorbeeld bij een SHA-256 gebaseerde HMAC een 256 bits lange sleutel.
 
 ## Timing attacks
 
