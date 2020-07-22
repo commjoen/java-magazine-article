@@ -16,7 +16,7 @@ Laten we maar direct met de belangrijkste aanbeveling starten als het gaat om de
 image::images/aes_ecb_cbc_result.png[Voorbeeld van problemen bij ECB (Bron Wikipedia),300,200]
 
 van links naar rechts: geen encryptie toegepast, ECB encryptie toegepast, CBC of CTR encryptie toegepast.
-Er is wel een uitzondering: je kan ECB gebruiken als het te versleutelen bericht past in 1 blok van maximaal 128 bits, alleen zijn er maar weinig gevallen te bedenken waarbij dit het geval is.
+Er is wel een uitzondering: je kan ECB gebruiken als het te versleutelen bericht past in 1 blok van maximaal 128 bits, alleen komt een dergelijk klein bericht niet zo vaak voor.
 
 Kies je voor AES-CBC (Cipher Block Chaining)? Voeg dan ook een HMAC toe: CBC is gevoelig voor een padding oracle attack, deze attack is gebaseerd op het veranderen van bytes in de padding om uiteindelijk een afleiding van de sleutel te kunnen doen en het bericht te kunnen decrypten. Om dit te voorkomen dien je een HMAC toe te passen op de ciphertext. Wordt de ciphertext dan aangepast, dan zal de HMAC validatie falen. Zorg ervoor dat gebruikt maakt van de combinatie “Encrypt then MAC” Alle andere vormen (“MAC then encrypt”, “MAC and encrypt”) zijn kwetsbaar, controleer altijd eerst de MAC en ga dan pas verder met ontsleuteling van het bericht.
 
